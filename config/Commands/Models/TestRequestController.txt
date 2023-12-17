@@ -1,0 +1,15 @@
+<?php
+namespace Project\TestModule;
+
+use Core\Contracts\RequestControllerInterface;
+use Core\Services\Request;
+
+class TeamRequestController implements RequestControllerInterface {
+
+    public static function endpoints()
+    {
+        Request::On('test', function (){
+            
+        });   
+    }
+}

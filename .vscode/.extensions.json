@@ -1,0 +1,21 @@
+{
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+        "dsznajder.es7-react-js-snippets",
+        "DEVSENSE.intelli-php-vscode",
+        "xabikos.JavaScriptSnippets",
+        "PKief.material-icon-theme",
+        "leizongmin.node-module-intellisense",
+        "christian-kohler.path-intellisense",
+        "DEVSENSE.phptools-vscode",
+        "bmewburn.vscode-intelephense-client",
+        "funkyremi.vscode-google-translate",
+        "xabikos.JavaScriptSnippets",
+        "wix.vscode-import-cost",
+        "ecmel.vscode-html-css",
+        "pranaygp.vscode-css-peek",
+        "dzhavat.bracket-pair-toggler",
+        "formulahendry.auto-rename-tag",
+        "usernamehw.errorlens"
+	]
+}

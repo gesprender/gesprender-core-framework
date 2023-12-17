@@ -1,0 +1,39 @@
+version: "3"
+services:
+  db:
+    image: mysql
+    container_name: MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - gesprender-core-framework
+  php:
+    build: ./docker/.
+    container_name: PHP8.1
+    restart: always
+    ports:
+      - "2024:2024"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - gesprender-core-framework
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: PHPMyAdmin
+    restart: always
+    ports:
+      - 3001:80
+    depends_on:
+      - db
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=MySQL
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    networks:
+      - gesprender-core-framework
+
+networks:
+  gesprender-core-framework:
+    name: gesprender-core-framework
+    driver: bridge

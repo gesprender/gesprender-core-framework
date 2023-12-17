@@ -1,0 +1,14 @@
+# Files
+yarn.lock
+composer.lock
+package-lock.json
+.env
+
+# Folders
+/node_modules
+/vendor
+/dist
+/logs
+/upload
+/src/Modules
+/Project

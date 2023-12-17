@@ -1,0 +1,89 @@
+<?php
+/** 
+ * [√]Ok          [x]Error          [●]Step
+ *
+ */
+
+namespace Config;
+
+use Config\Commands\AbstractConsoleLibrary;
+use Config\Commands\Make;
+use Config\Commands\Migrations;
+use Dotenv\Dotenv;
+
+$loadAutoload = './vendor/autoload.php';
+if(file_exists($loadAutoload)){
+    require $loadAutoload;
+}else {
+    echo "  [x] No se encontró la carpeta VENDOR. Ejecuta 'composer install'.";
+    exit;
+}
+
+if(!file_exists('./.env')){
+    echo "  [x] No se encontró el archivo '.env'";
+    exit;
+}
+
+$dotenv = Dotenv::createImmutable('./');
+$dotenv->load();
+
+class CoreShell extends AbstractConsoleLibrary
+{
+
+    public function __construct()
+    {
+        # We validate if the command exists
+        echo " [●] Validando el comando ...\n";
+        self::validateArgs();
+    }
+
+    private static function validateArgs()
+    {
+        if (!isset($_SERVER['argv'][1])) {
+            echo "Usa un comando.";
+            die;
+        }
+        $comand = explode('::', $_SERVER['argv'][1]);
+
+        switch ($comand[0]) {
+            case 'Server':
+            case 'server':
+                echo self::colorText(" [√] ", self::GREEN) . "Encendiendo el servidor GesPrender-Core-Framework \n";
+                echo self::colorText(" [√] ", self::GREEN) . "Listen in http://localhost:2024 \n";
+                exec("php -S localhost:2024");
+                break;
+            case 'Make':
+                # Posibles comandos Make
+                switch ($comand[1]) {
+                    case 'build':
+                        Make::build();
+                        break;
+                    case 'project':
+                        Make::project();
+                        break;
+                    default:
+                        echo " [x] Comando no reconocido ...";
+                        die;
+                }
+                break;
+            case 'Migrations':
+                # Posibles comandos Migrations
+                switch ($comand[1]) {
+                    case 'migrate':
+
+                        Migrations::migrate();
+                        break;
+
+                    default:
+                        echo " [x] Comando no reconocido ...";
+                        die;
+                }
+                break;
+            default:
+                echo " [x] Comando no reconocido ...";
+                die;
+        }
+    }
+}
+
+$Make = new CoreShell();

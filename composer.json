@@ -1,0 +1,25 @@
+{
+    "name": "gesprender/framework",
+    "description": "GesPrender Framework",
+    "type": "project",
+    "license": "proprietary",
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        },
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Core\\": "src/",
+            "Config\\": "config/",
+            "Project\\": "Project/src"
+        }
+    },
+    "require": {
+        "php": "^7.4.0",
+        "vlucas/phpdotenv": "^5.5",
+        "phpoffice/phpspreadsheet": "^1.19"
+    }
+}
