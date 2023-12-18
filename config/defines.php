@@ -21,12 +21,12 @@ if(MODE == 'Prod'){
 }
 
 # Paths
-define('PATH_SRC', HOST.'src/');
-define('PATH_LOGS', HOST.'logs/');
-define('PATH_REACT', HOST.'themes/default/');
-define('PATH_CONFIG', HOST.'config/');
-define('PATH_VENDOR', HOST.'vendor/');
-define('PATH_UPLOAD', HOST.'upload/');
+define('PATH_SRC', HOST.'/src/');
+define('PATH_LOGS', HOST.'/logs/');
+define('PATH_REACT', HOST.'/themes/default/');
+define('PATH_CONFIG', HOST.'/config/');
+define('PATH_VENDOR', HOST.'/vendor/');
+define('PATH_UPLOAD', HOST.'/upload/');
 
 
 #   Definimos zona horaria ARGENTINA

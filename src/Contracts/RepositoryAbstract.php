@@ -34,8 +34,14 @@ abstract class RepositoryAbstract extends DB
         return parent::insert($table, $arsInsert);
     }
 
+    protected static function _update(array $set, string $table, array $where = []) : bool
+    {
+        return parent::update($table, $set, $where);
+    }
+
     protected static function _deleteById(string $table, int $id)
     {
         return parent::deleteById($table, $id);
     }
+
 }

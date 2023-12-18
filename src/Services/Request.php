@@ -4,11 +4,10 @@ class Request {
 
 
     public static function On(string $key, $callback){
-
-        if(array_key_exists($key, $_REQUEST)){
+        $pathRequest = str_replace("/api/index.php", "", $_SERVER['REQUEST_URI']);
+        if(array_key_exists($key, $_REQUEST) || $pathRequest == $key){
             $callback();
         }
-
     }
 
     public static function GET(string $key, $callback){

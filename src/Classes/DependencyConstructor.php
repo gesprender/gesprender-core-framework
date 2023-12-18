@@ -20,7 +20,7 @@ class DependencyConstructor {
                     document.body.innerHTML = `$pageNotFundReactServer`;
                 });</script>
             ";
-            $script .= '<script type="module" src="'.HOST_REACT.'/Project/themes/App.jsx" /></script>';
+            $script .= '<script type="module" src="'.HOST_REACT.'/App.jsx" /></script>';
             $style = '';
         }
 

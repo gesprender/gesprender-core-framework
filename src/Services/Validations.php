@@ -4,12 +4,12 @@ namespace Core\Services;
 
 class Validations
 {
-    CONST CHARACTERS_INVALIDS = ["'", "\"", "\\", ";", "--", "#", "/*", "*/"];
-    public static function StringSQL($string)
+    const CHARACTERS_INVALIDS = ["'", "\"", "\\", ";", "--", "#", "/*", "*/"];
+    public static function StringSQL(string $string): bool
     {
 
         if (is_numeric($string)) {
-            return (int) $string;
+            return (bool) $string;
         }
 
         # Potentially dangerous characters list
@@ -23,5 +23,12 @@ class Validations
         }
 
         return true;
+    }
+
+    public static function IsJsonString(string $string)
+    {
+        if(is_array(json_decode($string, true))) return true;
+
+        return false;
     }
 }

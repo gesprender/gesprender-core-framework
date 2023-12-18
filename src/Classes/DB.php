@@ -1,4 +1,5 @@
 <?php
+
 namespace Core\Classes;
 
 use Core\Contracts\CoreAbstract;
@@ -10,7 +11,7 @@ class DB extends CoreAbstract
     private static function Connection()
     {
         $connection = new mysqli($_ENV['DDBB_HOST'], $_ENV['DDBB_USER'], $_ENV['DDBB_PASSWORD'], $_ENV['DDBB_DBNAME']);
-        if($connection->connect_error) throw new Exception('Could not connect to database.');
+        if ($connection->connect_error) throw new Exception('Could not connect to database.');
         return $connection;
     }
     /**
@@ -20,7 +21,7 @@ class DB extends CoreAbstract
      */
     public static function query(string $query, bool $fetch = false, string $typeFetch = 'fetch_all')
     {
-        if(empty($query)) return;
+        if (empty($query)) return;
         $response = mysqli_query(self::Connection(), $query);
         if ($fetch) {
             switch ($typeFetch) {
@@ -85,7 +86,7 @@ class DB extends CoreAbstract
         foreach ($find as $key => $value) {
             if ($i > 0) {
                 $wher .= "AND $key = '$value' ";
-            }else{
+            } else {
                 $wher .= "$key = '$value' ";
             }
             $i++;
@@ -117,7 +118,7 @@ class DB extends CoreAbstract
      * @param string $table Name of the table
      * @param string $search Enter the value to search 
      */
-    protected static function search(string $table, string $search )
+    protected static function search(string $table, string $search)
     {
         $businessId = $_SESSION['Business']->id;
         $query = "SELECT * FROM $table WHERE product LIKE '%$search%' AND business_id =  $businessId ORDER BY product ASC";
@@ -161,7 +162,7 @@ class DB extends CoreAbstract
      * @param array $where Conditions
      */
 
-    protected static function update(string $table, array $set, array $where = []): ?bool
+    protected static function update(string $table, array $set, array $where = []): bool
     {
         try {
             $query = "UPDATE $table SET ";
@@ -180,7 +181,7 @@ class DB extends CoreAbstract
             $query .= $wher;
             return self::query($query) ? true : false;
         } catch (Exception $e) {
-            Logger::error('DB', 'Error in update -> ' . $e->getMessage());
+            self::ExceptionResponse($e);
             return false;
         }
     }
@@ -198,6 +199,4 @@ class DB extends CoreAbstract
         }
         return false;
     }
-
-
 }

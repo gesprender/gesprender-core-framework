@@ -20,6 +20,9 @@
     "require": {
         "php": "^7.4.0",
         "vlucas/phpdotenv": "^5.5",
-        "phpoffice/phpspreadsheet": "^1.19"
+        "endroid/qr-code": "^3.9",
+        "phpoffice/phpspreadsheet": "^1.19",
+        "firebase/php-jwt": "^5.5.1",
+        "dompdf/dompdf": "^2.0"
     }
 }
