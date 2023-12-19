@@ -17,10 +17,11 @@ class Make extends AbstractConsoleLibrary
     {
         # Creamos el archivo index.html
         echo "      [●] Creando index...\n";
-        $moduleContent = '<html><head><title>Document</title></head><body><div id="root"></div><script type="module" src="./src/Modules/themes/App.jsx"></script></body></html>';
-        file_put_contents('index.html', $moduleContent);
+        $moduleContent = '<html><head><title>Document</title></head><body><div id="root"></div><script type="module" src="./App.jsx"></script></body></html>';
+        file_put_contents('./Project/themes/default/index.html', $moduleContent);
         echo "      [●] Ejecutando build de react...\n";
         # Ejecutamos el build de react
+        chdir(".{$_ENV['PATH_THEME']}");
         exec('npm run build');
         exec('del index.html');
         # Capturamos el build
@@ -35,7 +36,7 @@ class Make extends AbstractConsoleLibrary
             rename("./dist/assets/$file", "./dist/assets/themes.$extension");
         }
         echo "      [●] Copiando build en themes...\n";
-        self::folderCopy('./dist/assets/', "./src/Modules/themes/dist");
+        self::folderCopy('./dist/assets/', "../dist");
         echo self::colorText(" [●] Build generado con exito...\n", self::GREEN);
     }
 
