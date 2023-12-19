@@ -17,7 +17,7 @@ class Make extends AbstractConsoleLibrary
     {
         # Creamos el archivo index.html
         echo "      [●] Creando index...\n";
-        $moduleContent = '<html><head><title>Document</title></head><body><div id="root"></div><script type="module" src="./App.jsx"></script></body></html>';
+        $moduleContent = "<html><head><title>{$_ENV['NAME_PROJECT']}</title></head><body><div id='root'></div><script type='module' src='./App.jsx'></script></body></html>";
         file_put_contents('./Project/themes/default/index.html', $moduleContent);
         echo "      [●] Ejecutando build de react...\n";
         # Ejecutamos el build de react
