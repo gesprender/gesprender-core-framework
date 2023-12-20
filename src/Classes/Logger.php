@@ -1,8 +1,6 @@
 <?php
 namespace Core\Classes;
 
-use Core\Controller\EmailController;
-
 class Logger
 {
     public static function error(string $module, $message)
@@ -10,7 +8,7 @@ class Logger
         $message = is_string($message) ? $message : json_encode($message);
         self::registerLog("[" . date("r") . "] Error en modulo $module : $message\r\n");
         if (defined('MODE') && MODE == 'Prod') {
-            EmailController::sendMessage(['JorgeEmilianoM@gmail.com'], 'Reporte de Error', $message);
+            // EmailController::sendMessage(['JorgeEmilianoM@gmail.com'], 'Reporte de Error', $message);
         }
     }
     public static function registerLog(string $errorLog)
