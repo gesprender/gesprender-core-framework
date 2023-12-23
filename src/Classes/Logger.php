@@ -13,7 +13,8 @@ class Logger
     }
     public static function registerLog(string $errorLog)
     {
-        $file_errors = is_writable('/../Logs/errors.log') ? fopen(__DIR__  . '/../Logs/errors.log', 'a') : false;
+        $pathLog = __DIR__.'/../../Logs/errors.log';
+        $file_errors = is_writable($pathLog) ? fopen($pathLog, 'a') : false;
         if ($file_errors !== false) {
             fwrite($file_errors, $errorLog);
             fclose($file_errors);

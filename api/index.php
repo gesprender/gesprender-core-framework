@@ -1,5 +1,6 @@
 <?php
 
+use Core\Controllers\ExceptionsLogsController;
 use Core\Services\Response;
 
 require '../vendor/autoload.php';
@@ -28,6 +29,9 @@ $loadFileEndpointsController = '../Project/Endpoints.php';
 if(file_exists($loadFileEndpointsController)){
     require $loadFileEndpointsController;
 }
+
+# Core Endpoints default
+ExceptionsLogsController::Endpoints();
 
 if($_REQUEST) {
     Response::json([
