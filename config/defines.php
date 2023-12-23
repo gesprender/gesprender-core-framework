@@ -1,7 +1,7 @@
 <?php
-include __DIR__ .'/alias.php';
+require __DIR__ .'/alias.php';
 
-define('VERSION', '0.0.0');
+define('VERSION', getVersion());
 define('VERSION_NUM', str_replace('.', '', VERSION));   //Evita conflictos en React (no acepta agregar ?v=1.8.3)
 
 define('MODE', $_ENV['MODE']);
