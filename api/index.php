@@ -1,4 +1,7 @@
 <?php
+
+use Core\Services\Response;
+
 require '../vendor/autoload.php';
 
 header("Access-Control-Allow-Origin: *");
@@ -26,7 +29,14 @@ if(file_exists($loadFileEndpointsController)){
     require $loadFileEndpointsController;
 }
 
-echo json_encode([
-    'message' => 'Welcome GesPrender Framework API',
-    'data' => []
-]);
+if($_REQUEST) {
+    Response::json([
+        'status' => false,
+        'message' => 'Route not found.'
+    ], 404);
+}
+
+Response::json([
+    'status' => true,
+    'message' => 'Welcom to Api.'
+], 200);
