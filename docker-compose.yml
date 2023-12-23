@@ -6,17 +6,17 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
     networks:
-      - gesprender-core-framework
+      - calcularinflacion
   php:
     build: ./docker/.
-    container_name: PHP8.1
+    container_name: PHP8.2
     restart: always
     ports:
-      - "2024:2024"
+      - "80:80"
     volumes:
       - ./:/var/www/html
     networks:
-      - gesprender-core-framework
+      - calcularinflacion
   phpmyadmin:
     image: phpmyadmin
     container_name: PHPMyAdmin
@@ -31,9 +31,9 @@ services:
       - PMA_USER=root
       - PMA_PASSWORD=root
     networks:
-      - gesprender-core-framework
+      - calcularinflacion
 
 networks:
-  gesprender-core-framework:
-    name: gesprender-core-framework
+  calcularinflacion:
+    name: calcularinflacion
     driver: bridge
