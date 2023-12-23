@@ -75,12 +75,12 @@ class Make extends AbstractConsoleLibrary
                         "TestRepository.php" => "<?php\n// #GesPrender Core Framework\n",
                         "TestRequestController.php" => "<?php\n// #GesPrender Core Framework\n"
                     ],
-                    "Endpoints.php" => "<?php\n// #GesPrender Core Framework\n"
                 ],
                 "theme" => [
-                    "App.jsx" => "//GesPrender Core Framework\n"
+                    "default" => ["App.jsx" => "//GesPrender Core Framework\n"],
+                    "dist" => []
                 ],
-                "dist" => []
+                "Endpoints.php" => "<?php\n// #GesPrender Core Framework\n"
             ]
         ];
         echo self::colorText(" [●] Creando estructura...\n", self::GREEN);
