@@ -20,11 +20,39 @@ class DependencyConstructor {
                     document.body.innerHTML = `$pageNotFundReactServer`;
                 });</script>
             ";
-            $script .= '<script type="module" src="'.HOST_REACT.'/App.jsx" /></script>';
+            if($_ENV['USE_TYPESCRIPT']){
+                $script .= '
+                    <script type="module">
+                        import RefreshRuntime from "'.HOST_REACT.'/@react-refresh"
+                        RefreshRuntime.injectIntoGlobalHook(window)
+                        window.$RefreshReg$ = () => {}
+                        window.$RefreshSig$ = () => (type) => type
+                        window.__vite_plugin_react_preamble_installed__ = true
+                    </script>
+                ';
+                $script .= '<script type="module" src="'.HOST_REACT.'/App.tsx" /></script>';
+            }else{
+                $script .= '<script type="module" src="'.HOST_REACT.'/App.jsx" /></script>';
+            }
             $style = '';
         }
 
         return '<!-- React dependency -->' .$script . $style;
+    }
+
+    public static function BoostrapCDN(): string 
+    {
+        if($_ENV['USE_BOOSTRAP']){
+            return '<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">';
+        }
+    }
+
+    public static function BoostrapLibs(): string 
+    {
+        if($_ENV['USE_BOOSTRAP']){
+            return '<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>';
+        }
     }
 }
 
