@@ -1,8 +1,0 @@
-<?php 
-namespace Project\TestModule;
-use Project\TestModule\TestRepository;
-
-final class Test extends TestRepository
-{
-
-}

@@ -1,9 +1,0 @@
-<?php
-namespace Project\TestModule;
-
-use Core\Contracts\RepositoryAbstract;
-
-class TestRepository extends RepositoryAbstract {
-
-
-}
