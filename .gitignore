@@ -3,6 +3,7 @@ yarn.lock
 composer.lock
 package-lock.json
 .env
+sitemap.xml
 
 # Folders
 /node_modules
