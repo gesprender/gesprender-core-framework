@@ -12,9 +12,9 @@ use Throwable;
  */
 abstract class CoreAbstract
 {
-    public static function ExceptionResponse(Throwable $exception): string
+    public static function ExceptionResponse(Throwable $exception, string $path = 'CoreAbstract'): string
     {
-        Logger::error('CoreAbstract', $exception);
+        Logger::error($path, $exception);
         if (getenv('APP_ENV') != 'Prod') {
             return Response::json([
                 'message'   => $exception->getMessage(),
@@ -26,5 +26,10 @@ abstract class CoreAbstract
             'message'   => 'Server Error',
             'status' => false
         ], 500);
+    }
+
+    public static function ExceptionCapture(Throwable $exception, string $path): void
+    {
+        Logger::error($path, $exception);
     }
 }

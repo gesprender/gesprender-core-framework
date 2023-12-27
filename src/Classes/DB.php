@@ -1,77 +1,107 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core\Classes;
 
 use Core\Contracts\CoreAbstract;
 use Exception;
+use InvalidArgumentException;
 use mysqli;
+use RuntimeException;
 
 class DB extends CoreAbstract
 {
-    private static function Connection()
+    private static function Connection(): ?mysqli
     {
-        $connection = new mysqli($_ENV['DDBB_HOST'], $_ENV['DDBB_USER'], $_ENV['DDBB_PASSWORD'], $_ENV['DDBB_DBNAME']);
-        if ($connection->connect_error) throw new Exception('Could not connect to database.');
-        return $connection;
-    }
-    /**
-     * @param string $query Query in format string
-     * @param bool $fetch Use fetch mode to result query
-     * @param string $typeFetch Type of fetch mode. Possible values are: fetch_array or fetch_all or fetch_assoc
-     */
-    public static function query(string $query, bool $fetch = false, string $typeFetch = 'fetch_all')
-    {
-        if (empty($query)) return;
-        $response = mysqli_query(self::Connection(), $query);
-        if ($fetch) {
-            switch ($typeFetch) {
-                case 'fetch_array':
-                    return $response ? $response->fetch_array(MYSQLI_ASSOC) : false;
-                case 'fetch_assoc':
-                    return $response ? $response->fetch_assoc() : false;
-                default:
-                case 'fetch_all':
-                    return $response ? $response->fetch_all(MYSQLI_ASSOC) : false;
-            }
+        try {
+            $connection = new mysqli($_ENV['DDBB_HOST'], $_ENV['DDBB_USER'], $_ENV['DDBB_PASSWORD'], $_ENV['DDBB_DBNAME']);
+            if ($connection->connect_error) throw new Exception('Could not connect to database.');
+            return $connection;
+        } catch (\Throwable $th) {
+            self::ExceptionResponse($th);
         }
-        return $response;
     }
 
     /**
-     * @param array $colum Name of the columns
+     * Ejecuta una consulta SQL y recupera los resultados.
+     * 
+     * @param string $query Query in format string
+     * @param bool $customFetch Use custom fetch mode to result query
+     * @param string $typeFetch Type of fetch mode. Possible values are: fetch_array or fetch_all or fetch_assoc
+     */
+    public static function query(string $query, bool $customFetch = false, string $typeFetch = 'fetch_all'): ?array
+    {
+        try {
+
+            if (empty($query)) {
+                throw new InvalidArgumentException("Query no puede estar vacío.");
+            }
+
+            if (!in_array($typeFetch, ['fetch_array', 'fetch_assoc', 'fetch_all'])) {
+                throw new InvalidArgumentException("typeFetch no válido.");
+            }
+
+            $response = mysqli_query(self::Connection(), $query);
+
+            if (!$response) {
+                throw new RuntimeException("Error ejecutando la consulta: " . mysqli_error(self::Connection()));
+            }
+
+            if ($customFetch) {
+                switch ($typeFetch) {
+                    case 'fetch_array':
+                        return $response ? $response->fetch_array(MYSQLI_ASSOC) : [];
+                    case 'fetch_assoc':
+                        return $response ? $response->fetch_assoc() : [];
+                    case 'fetch_all':
+                    default:
+                        return $response ? $response->fetch_all(MYSQLI_ASSOC) : [];
+                }
+            }
+            return (array)$response;
+        } catch (\Throwable $th) {
+            self::ExceptionResponse($th);
+        }
+    }
+
+    /**
+     * @param array $colum Name of the columns. Use example "col1, col2, col3..."
      * @param string $trable Name of the table
      * @param array $where Conditions for the query
      * @param string $OrderBy other conditions
      * @param bool $fetch Use fetch mode to result query
      * @param string $typeFetch Type of fetch mode. Possible values are: fetch_array or fetch_all or fetch_assoc
      */
-    protected static function get(array $colums, string $table,  array $where = [], string $OrderBy = '', bool $fetch = true, $typeFetch = 'fetch_all')
+    protected static function get(array $colums, string $table, array $where = [], string $OrderBy = '', bool $fetch = true, $typeFetch = 'fetch_all'): array
     {
         try {
-            $cols = '';
-            if (!empty($colums)) {
-                foreach ($colums as $colum) {
-                    $cols .= $colum . ", ";
-                }
-                $cols = substr($cols, 0, -2);
-            } else {
-                $cols = '*';
-            }
-            $wher = '';
+            // Build the SELECT clause
+            $cols = empty($colums) ? '*' : implode(", ", $colums);
+
+            // Initialize the query
+            $query = "SELECT $cols FROM $table";
+
+            // Prepare WHERE clause if applicable
             if (!empty($where)) {
-                $wher = 'WHERE ';
+                $whereClauses = [];
                 foreach ($where as $key => $value) {
-                    $wher .= "$key = '$value' ";
+                    $whereClauses[] = "$key = $value";
                 }
-                $wher = substr($wher, 0, -1);
+                $query .= " WHERE " . implode(' ', $whereClauses);
             }
-            $query = "SELECT $cols FROM $table $wher $OrderBy";
+
+            // Append ORDER BY clause if provided
+            if ($OrderBy) {
+                $query .= " ORDER BY $OrderBy";
+            }
+
             $response = self::query($query, $fetch, $typeFetch);
 
-            return $response ? $response : false;
+            return (array)$response;
         } catch (Exception $e) {
-            Logger::error('DB', 'Error in get -> ' . $e->getMessage());
-            return false;
+            self::ExceptionCapture($e, 'DB::get');
+            return [];
         }
     }
 
@@ -79,54 +109,63 @@ class DB extends CoreAbstract
      * @param string $table Name of the table
      * @param array $find Enter the conditions for the search 
      */
-    protected static function findBy(string $table, array $find)
+    protected static function findBy(string $table, array $find): array
     {
-        $wher = ' WHERE ';
-        $i = 0;
-        foreach ($find as $key => $value) {
-            if ($i > 0) {
-                $wher .= "AND $key = '$value' ";
-            } else {
-                $wher .= "$key = '$value' ";
+        try {
+            $wher = ' WHERE ';
+            $i = 0;
+            foreach ($find as $key => $value) {
+                if ($i > 0) {
+                    $wher .= "AND $key = '$value' ";
+                } else {
+                    $wher .= "$key = '$value' ";
+                }
+                $i++;
             }
-            $i++;
+            $query = "SELECT * FROM $table" . $wher;
+            $data = self::query($query, true, 'fetch_all');
+            if ($data) {
+                return $data;
+            }
+            return [];
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'DB::findBy');
+            return [];
         }
-        $query = "SELECT * FROM $table" . $wher;
-        // ddd($query);
-        $data = self::query($query, true, 'fetch_all');
-        if ($data) {
-            return $data;
-        }
-        return false;
     }
 
     /**
      * @param string $table Name of the table
      * @param string|int $find Enter the id for the search 
      */
-    protected static function findById(string $table, $findId)
+    protected static function findById(string $table, int $findId): array
     {
-        $query = "SELECT * FROM $table WHERE id = '$findId'";
-        $data = self::query($query, true, 'fetch_assoc');
-        if ($data) {
-            return $data;
+        try {
+            $query = "SELECT * FROM $table WHERE id = $findId";
+            $data = self::query($query, true, 'fetch_assoc');
+
+            return $data ? $data : [];
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'DB::findBy');
+            return [];
         }
-        return false;
     }
 
     /**
      * @param string $table Name of the table
      * @param string $search Enter the value to search 
      */
-    protected static function search(string $table, string $search)
+    protected static function search(string $table, string $search): array
     {
-        $businessId = $_SESSION['Business']->id;
-        $query = "SELECT * FROM $table WHERE product LIKE '%$search%' AND business_id =  $businessId ORDER BY product ASC";
-        $data = self::query($query, true, 'fetch_all');
-        if ($data) {
-            return $data;
+        try {
+            $query = "SELECT * FROM $table WHERE product LIKE '%$search%' ORDER BY product ASC";
+            $data = self::query($query, true, 'fetch_all');
+            
+            return $data ? $data : [];
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'DB::search');
+            return [];
         }
-        return false;
     }
 
     /**
@@ -151,7 +190,7 @@ class DB extends CoreAbstract
 
             return $data;
         } catch (Exception $e) {
-            Logger::error('DB', 'Error in insert -> ' . $e->getMessage());
+            self::ExceptionCapture($e, 'DB::insert');
             return false;
         }
     }
@@ -179,9 +218,11 @@ class DB extends CoreAbstract
                 $wher = substr($wher, 0, -1);
             }
             $query .= $wher;
-            return self::query($query) ? true : false;
+
+            return (bool) self::query($query);
+
         } catch (Exception $e) {
-            self::ExceptionResponse($e);
+            self::ExceptionCapture($e, 'DB::update');
             return false;
         }
     }
@@ -190,13 +231,16 @@ class DB extends CoreAbstract
      * @param string $table Name of the table
      * @param string|int $idToDelete Enter the id for delete value
      */
-    protected static function deleteById(string $table, int $idToDelete)
+    protected static function deleteById(string $table, int $idToDelete): bool
     {
-        $query = "DELETE FROM $table WHERE id = $idToDelete";
-        $data = self::query($query);
-        if ($data) {
-            return $data;
+        try {
+            $query = "DELETE FROM $table WHERE id = $idToDelete";
+            $data = self::query($query);
+
+            return (bool) $data;
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'DB::deleteById');
+            return false;
         }
-        return false;
     }
 }
