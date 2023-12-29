@@ -1,0 +1,29 @@
+# Corregir todos los lugares donde esté "site" y "site.com" 
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name site.com;
+
+    ssl_certificate /etc/letsencrypt/live/site.com/fullchain.pem;               # Certificación SSL
+    ssl_certificate_key /etc/letsencrypt/live/site.com/privkey.pem;             # Certificación SSL
+    include /etc/letsencrypt/options-ssl-nginx.conf;                            # Certificación SSL
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;                              # Certificación SSL
+
+    root /var/www/html/site;                                                    # Ruta a la carpeta del proyecto
+    index index.php;
+
+    error_page 404 ./#/not-found;
+
+    location / {
+        try_files $uri /index.php$is_args$args;
+        # try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        	include snippets/fastcgi-php.conf;
+       		fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+   	}	
+
+    error_log /var/log/nginx/site_error.log;
+    access_log /var/log/nginx/site_access.log;
+}
