@@ -86,7 +86,7 @@ class DB extends CoreAbstract
             if (!empty($where)) {
                 $whereClauses = [];
                 foreach ($where as $key => $value) {
-                    $whereClauses[] = "$key = $value";
+                    $whereClauses[] = "$key = '$value'";
                 }
                 $query .= " WHERE " . implode(' ', $whereClauses);
             }
@@ -126,6 +126,35 @@ class DB extends CoreAbstract
             $data = self::query($query, true, 'fetch_all');
             if ($data) {
                 return $data;
+            }
+            return [];
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'DB::findBy');
+            return [];
+        }
+    }
+
+    /**
+     * @param string $table Name of the table
+     * @param array $find Enter the conditions for the search 
+     */
+    protected static function findOneBy(string $table, array $find): array
+    {
+        try {
+            $wher = ' WHERE ';
+            $i = 0;
+            foreach ($find as $key => $value) {
+                if ($i > 0) {
+                    $wher .= "AND $key = '$value' ";
+                } else {
+                    $wher .= "$key = '$value' ";
+                }
+                $i++;
+            }
+            $query = "SELECT * FROM $table" . "$wher LIMIT 1"; 
+            $data = self::query($query, true, 'fetch_all');
+            if ($data) {
+                return reset($data);
             }
             return [];
         } catch (\Throwable $th) {

@@ -23,9 +23,9 @@ abstract class RepositoryAbstract extends DB
         return [];
     }
 
-    protected static function _findOneBy(array $arrayData, string $table): array
+    protected static function _findOneBy(string $table, array $where): array
     {
-        $data = parent::findBy($table, $arrayData);
+        $data = parent::findBy($table, $where);
         if ($data) return reset($data);
         return [];
     }
