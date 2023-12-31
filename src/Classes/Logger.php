@@ -1,9 +1,10 @@
 <?php
+
 namespace Core\Classes;
 
 class Logger
 {
-    public static function error(string $module, $message)
+    public static function error(string $module, $message): void
     {
         $message = is_string($message) ? $message : json_encode($message);
         self::registerLog("[" . date("r") . "] Error en modulo $module : $message\r\n");
@@ -11,14 +12,18 @@ class Logger
             // EmailController::sendMessage(['JorgeEmilianoM@gmail.com'], 'Reporte de Error', $message);
         }
     }
-    public static function registerLog(string $errorLog)
+    public static function registerLog(string $errorLog): void
     {
-        $pathLog = __DIR__.'/../../Logs/errors.log';
-        $file_errors = is_writable($pathLog) ? fopen($pathLog, 'a') : false;
+        $dirPath = __DIR__ . '/../../Logs';
+        if (!is_dir($dirPath)) {
+            mkdir($dirPath, 0777, true);
+        }
+
+        $pathLog = $dirPath . '/errors.log';
+        $file_errors = fopen($pathLog, 'a');
         if ($file_errors !== false) {
             fwrite($file_errors, $errorLog);
             fclose($file_errors);
-            unset($_SESSION['LoggError']);
         }
     }
 
