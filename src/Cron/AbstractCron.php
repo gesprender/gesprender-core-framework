@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Core\Cron;
 
 use Core\Classes\Logger;
@@ -7,9 +9,9 @@ use Exception;
 
 abstract class AbstractCron
 {
-    abstract public function run();
+    abstract public function run(): void;
 
-    public function loadEnv()
+    public function loadEnv(): void
     {
         try {
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');

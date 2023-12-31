@@ -1,6 +1,10 @@
 <?php
+declare(strict_types=1);
+
 namespace Core\Classes;
-class DependencyConstructor {
+
+class DependencyConstructor 
+{
 
     public static function React() : string
     {

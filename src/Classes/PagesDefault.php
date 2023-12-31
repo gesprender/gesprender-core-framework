@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 class PagesDefault
 {
     public const Styles = '

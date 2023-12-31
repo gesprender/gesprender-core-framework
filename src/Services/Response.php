@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Core\Services;
 /**
  * HTTP response that will be sent to the client.
@@ -110,13 +112,14 @@ class Response {
      * @param array $data
      * @return string
      */
-    public static function json(array $data, int $status = 200): string {
+    public static function json(array $data, int $status = 200): string 
+    {
         header('Content-Type: application/json', true, $status);
         echo (json_encode($data));
         die;
     }
 
-    public static function ddd($var)
+    public static function ddd($var): void
     {
         var_dump($var);die;
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Core\Controllers;
 
@@ -9,14 +10,14 @@ use Core\Services\Response;
 final class ExceptionsLogsController
 {
 
-    public static function Endpoints()
+    public static function Endpoints(): void
     {
         Request::On('error_fron_log', function () {
             self::getLogFrontException();
         });
     }
 
-    public static function getLogFrontException()
+    public static function getLogFrontException(): void
     {
         try {
             $message = Request::getValue('message');

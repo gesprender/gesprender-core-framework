@@ -1,8 +1,13 @@
 <?php
-namespace Core\Classes;
-class Upload {
+declare(strict_types=1);
 
-    public static function img($file, $ruta_up, $name_file = ''){
+namespace Core\Classes;
+
+class Upload 
+{
+
+    public static function img($file, $ruta_up, $name_file = ''): string|bool
+    {
         try {
             // Capturamos datos de la imagen
             $business = $_SESSION['Business']->info['business'];
@@ -28,6 +33,5 @@ class Upload {
             return false;
         }
     }
-
 
 }

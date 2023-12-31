@@ -1,9 +1,11 @@
 <?php
+declare(strict_types=1);
+
 namespace Core\Services;
 
 class Helper {
 
-    public static function character_invalid(string $string)
+    public static function character_invalid(string $string): bool
     {
         $array_characters_invalid = ['/', "'", '"', '\\'];
         for($i = 0; $i < strlen($string); $i++){
@@ -14,7 +16,7 @@ class Helper {
         false;
     }
 
-    public static function validate_input(array $input)
+    public static function validate_input(array $input): bool
     {
 
         foreach($input as $x){
@@ -30,7 +32,7 @@ class Helper {
         return true;
     }
 
-    public static function validate_input_only_letters_characters(array $input)
+    public static function validate_input_only_letters_characters(array $input): bool
     {
         foreach($input as $x){
             $value = $x;
@@ -44,7 +46,7 @@ class Helper {
         }
     }
 
-    public static function Fsize($dir)
+    public static function Fsize($dir): string
     {
         clearstatcache();
         $cont = 0;
@@ -66,7 +68,7 @@ class Helper {
         return self::formatBytes($cont);
     }
 
-    public static function formatBytes($size, $precision = 2)
+    public static function formatBytes($size, $precision = 2): string
     {
         $base = log($size, 1024);
         $suffixes = array('', 'KB', 'MB', 'GB', 'TB');   
@@ -74,13 +76,13 @@ class Helper {
         return is_nan((float)round(pow(1024, $base - floor($base)), $precision)) ? '0' : round(pow(1024, $base - floor($base)), $precision) .' '. $suffixes[floor($base)];
     }
 
-    public static function list_files($directorio)
+    public static function list_files($directorio): int
     {
         $list_files = scandir($directorio);
         return count($list_files) - 2;
     }
 
-    public static function all_unset(array &$values)
+    public static function all_unset(array &$values): void
     {
         if(count($values) > 0){
             foreach($values as $key => $value){
@@ -89,12 +91,12 @@ class Helper {
         }
     }
 
-    public static function JsonResponse(array $response)
+    public static function JsonResponse(array $response): void
     {
         echo json_encode($response); die;
     }
 
-    public static function clearSpecialsCharacters( string $character ) : string 
+    public static function clearSpecialsCharacters( string $character ): string 
     {
 		$character = str_replace("[áàâãªä@]","a",$character);
 		$character = str_replace("[ÁÀÂÃÄ]","A",$character);
@@ -119,7 +121,7 @@ class Helper {
 		return $character;
 	}
 
-    public static function getMonthName($mes)
+    public static function getMonthName($mes): string|bool
     {
         switch ($mes) {
             case '01':
@@ -151,7 +153,7 @@ class Helper {
         }
     }
 
-    public static function nombreDia($num)
+    public static function nombreDia($num): string|bool
     {
         switch ($num) {
             case 1:
@@ -173,7 +175,7 @@ class Helper {
         }
     }
 
-    public static function letterWithNumber($let)
+    public static function letterWithNumber($let): int
     {
         $letters = "ABCDEFGHIJKLMNOPQRSTUVWHYZ";
         $lettersMin = "abcdefghijklmnopqrstuvwxyz";

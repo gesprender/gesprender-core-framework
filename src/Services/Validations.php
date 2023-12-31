@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Core\Services;
 
@@ -25,7 +26,7 @@ class Validations
         return true;
     }
 
-    public static function IsJsonString(string $string)
+    public static function IsJsonString(string $string): bool
     {
         if(is_array(json_decode($string, true))) return true;
 

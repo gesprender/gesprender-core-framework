@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Core\Classes;
 
@@ -25,14 +26,5 @@ class Logger
             fwrite($file_errors, $errorLog);
             fclose($file_errors);
         }
-    }
-
-    public static function logFront()
-    {
-        if (!isset($_REQUEST['module']) || !isset($_REQUEST['message'])) return;
-
-        $module = $_REQUEST['module'];
-        $message = $_REQUEST['message'];
-        self::error("[Front] " . $module, $message);
     }
 }
