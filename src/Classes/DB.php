@@ -19,7 +19,7 @@ class DB extends CoreAbstract
             if ($connection->connect_error) throw new Exception('Could not connect to database.');
             return $connection;
         } catch (\Throwable $th) {
-            self::ExceptionResponse($th);
+            self::ExceptionResponse($th, 'DB::Connection');
         }
     }
 
@@ -61,7 +61,7 @@ class DB extends CoreAbstract
             }
             return (array)$response;
         } catch (\Throwable $th) {
-            self::ExceptionResponse($th);
+            self::ExceptionResponse($th, 'DB::query');
         }
     }
 
@@ -158,7 +158,7 @@ class DB extends CoreAbstract
             }
             return [];
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::findBy');
+            self::ExceptionCapture($th, 'DB::findOneBy');
             return [];
         }
     }
@@ -175,7 +175,7 @@ class DB extends CoreAbstract
 
             return $data ? $data : [];
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::findBy');
+            self::ExceptionCapture($th, 'DB::findById');
             return [];
         }
     }
