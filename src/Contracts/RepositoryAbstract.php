@@ -1,47 +1,47 @@
 <?php
+
 namespace Core\Contracts;
 
 use Core\Classes\DB;
 
 abstract class RepositoryAbstract extends DB
 {
-    protected static function _getAll(array $Column, string $table, array $where = [])
+    protected static function _getAll(array $Column, string $table, array $where = []): array
     {
-        return parent::get($Column, $table, $where );
+        return parent::get($Column, $table, $where);
     }
-    
-    protected static function _findBy(array $arrayData, string $table)
+
+    protected static function _findBy(array $arrayData, string $table): array
     {
         return parent::findBy($table, $arrayData);
     }
 
-    protected static function _findById(string $table, int $id)
+    protected static function _findById(string $table, int $id): array
     {
         $data = parent::findById($table, $id);
-        if($data) return $data;
+        if ($data) return $data;
         return [];
     }
 
-    protected static function _findOneBy(array $arrayData, string $table) : array
+    protected static function _findOneBy(array $arrayData, string $table): array
     {
         $data = parent::findBy($table, $arrayData);
-        if($data) return reset($data);
+        if ($data) return reset($data);
         return [];
     }
 
-    protected static function _insert(string $table, array $arsInsert)
+    protected static function _insert(string $table, array $arsInsert): bool
     {
         return parent::insert($table, $arsInsert);
     }
 
-    protected static function _update(array $set, string $table, array $where = []) : bool
+    protected static function _update(array $set, string $table, array $where = []): bool
     {
         return parent::update($table, $set, $where);
     }
 
-    protected static function _deleteById(string $table, int $id)
+    protected static function _deleteById(string $table, int $id): bool
     {
         return parent::deleteById($table, $id);
     }
-
 }
