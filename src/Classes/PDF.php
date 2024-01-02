@@ -6,7 +6,7 @@ use Dompdf\Dompdf;
 
 class PDF extends Dompdf
 {
-    public function __construct(): void
+    public function __construct()
     {
         parent::__construct();
     }
