@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Core\Classes;
@@ -16,40 +17,32 @@ class Image
         try {
             $business = $_SESSION['Business']->info['business'];
             $fileIMG = $_FILES[$keyFile];
-            $file = $fileIMG['tmp_name'];
             $file_type = $fileIMG['type'];
             $file_type = explode('/', $file_type);
             $file_type = $file_type[1];
-            $rand = rand(0, 99999999);
-            $new_name = $business . '_' . hash('ripemd160', "$rand") . '.webp';
-            // $ruta_up = "../upload/$business/products/$new_name";
+            // Generar un nuevo nombre de archivo único
+            $imageFileType = strtolower(pathinfo($fileIMG["name"], PATHINFO_EXTENSION));
+            $newFileName = uniqid($business."_", true) . '.' . $imageFileType;
+            $target_dir = "../upload/$pathUpload/"; // Directorio donde se guardarán los archivos
+            $target_file = $target_dir . $newFileName;
             # Creamos un recurso de imagen 
-            switch ($file_type) {
-                case 'png':
-                    $recursoImage = imagecreatefrompng($file);
-                    break;
-                case 'jpg':
-                case 'jpeg':
-                    $recursoImage = imagecreatefromjpeg($file);
-                    break;
-            }
-            $image = $recursoImage;
-            if (!$image) {
-                $image = imagecreatefromstring(file_get_contents($file));
-                $recursoImage = $image;
+            $allowedTypes = ['gif', 'png', 'jpg', 'jpeg', 'webp', 'bmp'];
+            if (!in_array($file_type, $allowedTypes)) {
+                return false;
             }
 
-            if (!file_exists("../upload/GesPrender/Market/News/")) {
-                if (!mkdir("../upload/GesPrender/Market/News/", 0777, true)) throw new Exception("Al querer cargar la imagen de un New no se pudo crear la carpeta de Upload");
+            $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+            // Verificar el tamaño del archivo
+            if ($fileIMG["size"] > 500000) { // 500 KB como límite
+                return false;
             }
 
-            # Valor entre 0 y 100. Mayor calidad, mayor peso
-            $calidad = 20;
-            $status = imagewebp($recursoImage, "$pathUpload/$new_name", $calidad);
-            if ($status) {
-                $URL_IMG = PATH_UPLOAD . "GesPrender/Market/News/$new_name";
+            if (move_uploaded_file($fileIMG["tmp_name"], $target_file)) {
+                $URL_IMG = PATH_UPLOAD . "$pathUpload/$newFileName";
                 return true;
             }
+
             return false;
         } catch (Exception $e) {
             Logger::error('Products', 'Error in upload_img -> ' . $e->getMessage());
