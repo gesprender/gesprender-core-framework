@@ -13,7 +13,7 @@ class Helper {
                 return true;
             }
         }
-        false;
+        return false;
     }
 
     public static function validate_input(array $input): bool
@@ -42,8 +42,8 @@ class Helper {
                     return false;
                 }
             }
-            return true; 
         }
+        return true; 
     }
 
     public static function Fsize($dir): string
@@ -76,7 +76,7 @@ class Helper {
         return is_nan((float)round(pow(1024, $base - floor($base)), $precision)) ? '0' : round(pow(1024, $base - floor($base)), $precision) .' '. $suffixes[floor($base)];
     }
 
-    public static function list_files($directorio): int
+    public static function countFilesDir($directorio): int
     {
         $list_files = scandir($directorio);
         return count($list_files) - 2;
@@ -89,11 +89,6 @@ class Helper {
                 unset($values[$key]);
             }
         }
-    }
-
-    public static function JsonResponse(array $response): void
-    {
-        echo json_encode($response); die;
     }
 
     public static function clearSpecialsCharacters( string $character ): string 

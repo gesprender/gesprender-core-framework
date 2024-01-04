@@ -31,6 +31,6 @@ abstract class CoreAbstract
 
     public static function ExceptionCapture(Throwable $exception, string $path): void
     {
-        Logger::error($path, $exception);
+        Logger::error($path, $exception->getMessage());
     }
 }

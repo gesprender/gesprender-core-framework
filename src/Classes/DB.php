@@ -44,7 +44,7 @@ class DB extends CoreAbstract
             $response = mysqli_query(self::Connection(), $query);
 
             if (!$response) {
-                throw new RuntimeException("Error ejecutando la consulta: " . mysqli_error(self::Connection()));
+                throw new RuntimeException("Error ejecutando la consulta: $query - Var:" . json_encode($response));
             }
 
             if ($customFetch) {

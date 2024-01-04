@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Core\Classes;
 
+use Core\Contracts\CoreAbstract;
 use Exception;
 
-class Image
+class Image extends CoreAbstract
 {
 
     /**
@@ -45,7 +46,7 @@ class Image
 
             return false;
         } catch (Exception $e) {
-            Logger::error('Products', 'Error in upload_img -> ' . $e->getMessage());
+            self::ExceptionCapture($e, 'Image::Upload');
             return false;
         }
     }

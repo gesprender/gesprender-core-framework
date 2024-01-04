@@ -2,8 +2,9 @@
 declare(strict_types=1);
 
 namespace Core\Classes;
+use Core\Contracts\CoreAbstract;
 
-class Upload 
+class Upload extends CoreAbstract
 {
 
     public static function img($file, $ruta_up, $name_file = ''): string|bool
@@ -30,6 +31,7 @@ class Upload
             }
             return $status ? $new_name : false;
         } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'Upload::img');
             return false;
         }
     }

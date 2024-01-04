@@ -2,7 +2,10 @@
 declare(strict_types=1);
 
 namespace Core\Services;
-class Request 
+
+use Core\Contracts\CoreAbstract;
+
+class Request extends CoreAbstract
 {
 
     public static function On(string $key, $callback): void
@@ -13,7 +16,7 @@ class Request
         }
     }
 
-    public static function GET(string $key, $callback): void
+    public static function OnGET(string $key, $callback): void
     {
 
         if(array_key_exists($key, $_GET)){
@@ -21,7 +24,7 @@ class Request
         }
     }
 
-    public static function POST(string $key, $callback): void
+    public static function OnPOST(string $key, $callback): void
     {
         if(array_key_exists($key, $_POST)){
             $callback();
@@ -35,7 +38,7 @@ class Request
         if(!Validations::StringSQL($_REQUEST[$key])){
             $chars = implode(', ', Validations::CHARACTERS_INVALIDS);
             return Response::json([
-                'message' => "Haz ingresado un caracter no apectado. Ej: $chars",
+                'message' => "Haz ingresado un caracter no aceptado. Ej: $chars",
                 'data' => []
             ], 400);
         }
