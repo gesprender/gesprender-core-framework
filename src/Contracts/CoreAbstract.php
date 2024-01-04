@@ -15,7 +15,7 @@ abstract class CoreAbstract
 {
     public static function ExceptionResponse(Throwable $exception, string $path = 'CoreAbstract'): string
     {
-        Logger::error($path, $exception);
+        Logger::error($path, $exception->getMessage());
         if (getenv('MODE') != 'Prod') {
             return Response::json([
                 'message'   => $exception->getMessage(),
