@@ -16,22 +16,21 @@ class Request extends CoreAbstract
         }
     }
 
-    public static function OnGET(string $key, $callback): void
+    public static function GET(string $key, $callback): void
     {
-
         if(array_key_exists($key, $_GET)){
             $callback();
         }
     }
 
-    public static function OnPOST(string $key, $callback): void
+    public static function POST(string $key, $callback): void
     {
         if(array_key_exists($key, $_POST)){
             $callback();
         }
     }
 
-    public static function getValue($key, $default = false): string
+    public static function getValue($key, $default = false): string|bool
     {
         if(!isset($_REQUEST[$key])) return $default;
         
@@ -42,6 +41,14 @@ class Request extends CoreAbstract
                 'data' => []
             ], 400);
         }
+
+        return $_REQUEST[$key];
+    }
+
+    public static function getHeader($key, $default = false): string|bool
+    {
+        $Headers = getallheaders();
+        if(!isset($Headers[$key])) return $default;
 
         return $_REQUEST[$key];
     }
