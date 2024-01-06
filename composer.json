@@ -25,10 +25,12 @@
         "endroid/qr-code": "^3.9",
         "phpoffice/phpspreadsheet": "^1.19",
         "firebase/php-jwt": "^5.5.1",
+        "gesprender/cli": "master",
         "dompdf/dompdf": "^2.0"
     },
     "require-dev": {
-        "gesprender/cli": "master"
+        "mockery/mockery": "2.0.x-dev",
+        "phpunit/phpunit": "^11.0@dev"
     },
     "repositories": [
         {

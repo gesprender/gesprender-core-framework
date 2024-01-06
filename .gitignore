@@ -4,6 +4,7 @@ composer.lock
 package-lock.json
 .env
 sitemap.xml
+.phpunit.result.cache
 
 # Folders
 /node_modules
