@@ -7,9 +7,15 @@ use Core\Classes\DB;
 
 abstract class RepositoryAbstract extends DB
 {
-    protected static function _getAll(array $Column, string $table, array $where = [], string $orderBy = ''): array
+
+    protected static function _get(array $Columns, string $table, array $where = [], string $orderBy = ''): array
     {
-        return parent::get($Column, $table, $where, $orderBy);
+        return parent::get($Columns, $table, $where, $orderBy);
+    }
+
+    protected static function _getAll(string $table, array $where = [], string $orderBy = ''): array
+    {
+        return parent::get(['*'], $table, $where, $orderBy);
     }
 
     protected static function _findBy(array $arrayData, string $table): array
