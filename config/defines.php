@@ -1,5 +1,5 @@
 <?php
-require __DIR__ .'/alias.php';
+require 'alias.php';
 
 define('VERSION', getVersion());
 define('VERSION_NUM', str_replace('.', '', VERSION));   //Evita conflictos en React (no acepta agregar ?v=1.8.3)
