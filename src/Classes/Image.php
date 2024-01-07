@@ -50,4 +50,17 @@ class Image extends CoreAbstract
             return false;
         }
     }
+
+    public static function deleteImage(string $file): bool
+    {
+        try {
+            if (file_exists($file)) {
+                return unlink($file);
+            }
+            return false;
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'Image::deleteImage');
+            return false;
+        }
+    }
 }
