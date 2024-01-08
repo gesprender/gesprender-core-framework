@@ -43,6 +43,9 @@ COPY . /var/www/html
 # Configuración de Nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Custom php.ini
+COPY php.ini /usr/local/etc/php/
+
 # Establece el directorio de trabajo
 WORKDIR /var/www/html
 
