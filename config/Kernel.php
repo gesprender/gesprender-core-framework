@@ -27,7 +27,7 @@ final readonly class Kernel
         # Core Endpoints default
         ExceptionsLogsController::Endpoints();
 
-        if($_REQUEST) {
+        if ($_REQUEST) {
             Response::json([
                 'status' => false,
                 'message' => 'Route not found.'
@@ -42,8 +42,14 @@ final readonly class Kernel
 
     private function getDotenv(): void
     {
-        $dotenv = Dotenv::createImmutable('./../');
-        $dotenv->load();
+        $loadCustomDefines = '../Project/';
+        if (file_exists($loadCustomDefines)) {
+            $dotenv = Dotenv::createImmutable('./../Project/');
+            $dotenv->load();
+        }else{
+            $dotenv = Dotenv::createImmutable('./../');
+            $dotenv->load();
+        }
     }
 
     private function leadFiles()

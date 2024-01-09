@@ -4,20 +4,28 @@ use Core\Classes\DependencyConstructor;
 
 # Load Endpoints
 $loadAutoload = './vendor/autoload.php';
-if(file_exists($loadAutoload)){
+if (file_exists($loadAutoload)) {
     require $loadAutoload;
-}else{
+} else {
     include_once  './src/Classes/PagesDefault.php';
-    echo PagesDefault::CoreError('Debes instalar las dependencias de composer.');die;
+    echo PagesDefault::CoreError('Debes instalar las dependencias de composer.');
+    die;
 }
 
-if (!file_exists('./.env')) {
+if (!file_exists('./Project/.env') && !file_exists('./.env')) {
     include_once  './src/Classes/PagesDefault.php';
-    echo PagesDefault::CoreError('Debes configurar el .env');die;
+    echo PagesDefault::CoreError('Debes configurar el .env');
+    die;
 }
 
-$dotenv = Dotenv\Dotenv::createImmutable('./');
-$dotenv->load();
+if (file_exists('./Project/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable('./Project/');
+    $dotenv->load();
+} else {
+    $dotenv = Dotenv\Dotenv::createImmutable('./');
+    $dotenv->load();
+}
+
 require './config/defines.php';
 
 ?>

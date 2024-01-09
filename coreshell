@@ -18,7 +18,7 @@ if(file_exists($loadAutoload)){
     exit;
 }
 
-if(!file_exists('./.env')){
+if(!file_exists('./.env') && !file_exists('./Project/.env')){
     echo "  [x] No se encontró el archivo '.env'";
     exit;
 }
@@ -28,7 +28,11 @@ class CoreShell  extends CoreshellKernel
     public function __construct()
     {
         $DB = new DB();
-        $dotenv = Dotenv::createImmutable('./');
+        if (file_exists('./Project/.env')) {
+            $dotenv = Dotenv::createImmutable('./Project/');
+        } else {
+            $dotenv = Dotenv::createImmutable('./');
+        }
         parent::init($dotenv, $DB);
     }
     
