@@ -42,7 +42,7 @@ final readonly class Kernel
 
     private function getDotenv(): void
     {
-        $loadCustomDefines = '../Project/';
+        $loadCustomDefines = '../Project/.env';
         if (file_exists($loadCustomDefines)) {
             $dotenv = Dotenv::createImmutable('./../Project/');
             $dotenv->load();
