@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-buster
+FROM php:8.2.3-fpm
 
 # Instala las extensiones de PHP necesarias, herramientas y utilidades para descomprimir archivos
 RUN apt-get update && apt-get install -y \
@@ -22,10 +22,6 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && php -r "unlink('composer-setup.php');"
 
-# Instalación de Node.js v18
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs
-
 # Install xdebug
 RUN pecl install xdebug-3.3.1 \
     && docker-php-ext-enable xdebug
@@ -34,7 +30,6 @@ RUN echo 'xdebug.mode=debug' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.
 RUN echo 'xdebug.client_host=host.docker.internal' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo 'xdebug.client_port=9003' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo 'xdebug.start_with_request=yes' >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
 
 
 # Copia del código fuente a la imagen

@@ -36,7 +36,8 @@ final readonly class Kernel
 
         Response::json([
             'status' => true,
-            'message' => 'Welcom to Api.'
+            'message' => 'Welcom to Api.',
+            'data' => []
         ], 200);
     }
 
@@ -54,16 +55,24 @@ final readonly class Kernel
 
     private function leadFiles()
     {
+
+        # Load backoffice Endpoints
+        $loadFileEndpointsController = '../Backoffice/Endpoints.php';
+        if (file_exists($loadFileEndpointsController)) {
+            require $loadFileEndpointsController;
+        }
+
         # Load custom defines
         $loadCustomDefines = '../Project/src/custom_defines.php';
         if (file_exists($loadCustomDefines)) {
             require $loadCustomDefines;
         }
-
-        # Load Endpoints
+        
+        # Load custom Endpoints of the client
         $loadFileEndpointsController = '../Project/Endpoints.php';
         if (file_exists($loadFileEndpointsController)) {
             require $loadFileEndpointsController;
         }
+        
     }
 }

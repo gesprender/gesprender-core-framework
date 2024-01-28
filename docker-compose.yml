@@ -10,7 +10,6 @@ services:
   php:
     build: ./docker/.
     container_name: PHP8.2
-    restart: always
     ports:
       - "80:80"
     volumes:
@@ -20,7 +19,6 @@ services:
   phpmyadmin:
     image: phpmyadmin
     container_name: PHPMyAdmin
-    restart: always
     ports:
       - 3001:80
     depends_on:

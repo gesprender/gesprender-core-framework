@@ -21,6 +21,10 @@ server {
         alias /var/www/html/site/Project/src/;
     }
 
+    location /backoffice {
+        alias /var/www/html/Backoffice/frontend/dist;
+    }
+
     location /api/index.php {
         alias /var/www/html/site/api/index.php;
     }

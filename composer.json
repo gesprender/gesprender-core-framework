@@ -15,7 +15,8 @@
         "psr-4": {
             "Core\\": "src/",
             "Config\\": "config/",
-            "Project\\": "Project/src"
+            "Project\\": "Project/src",
+            "Backoffice\\": "Backoffice/backend"
         }
     },
     "minimum-stability": "dev",
