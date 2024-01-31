@@ -1,0 +1,8 @@
+{
+    "name": "core_framework",
+    "version": "0.0.1",
+    "scripts": {
+      "dev": "cd Project && npm run dev"
+    }
+  }
+  

@@ -63,13 +63,13 @@ final readonly class Kernel
         }
 
         # Load custom defines
-        $loadCustomDefines = '../Project/src/custom_defines.php';
+        $loadCustomDefines = '../Project/backend/custom_defines.php';
         if (file_exists($loadCustomDefines)) {
             require $loadCustomDefines;
         }
         
         # Load custom Endpoints of the client
-        $loadFileEndpointsController = '../Project/Endpoints.php';
+        $loadFileEndpointsController = '../Project/backend/Endpoints.php';
         if (file_exists($loadFileEndpointsController)) {
             require $loadFileEndpointsController;
         }
