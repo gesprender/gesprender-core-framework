@@ -35,7 +35,7 @@ class SQLiteConnector extends CoreAbstract
             
             $response = $this->db->query($query);
             $dataResponse = [];
-            while ($row = $response->fetchArray(SQLITE3_ASSOC)){
+            while ($response && ($row = $response->fetchArray(SQLITE3_ASSOC))){
                 $dataResponse[] = $row;
             }
             return $dataResponse;
