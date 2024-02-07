@@ -32,8 +32,8 @@ class SQLiteConnector extends CoreAbstract
             if ($OrderBy) {
                 $query .= " ORDER BY $OrderBy";
             }
-
-            $response = $this->db->query($query,);
+            
+            $response = $this->db->query($query);
             $dataResponse = [];
             while ($row = $response->fetchArray(SQLITE3_ASSOC)){
                 $dataResponse[] = $row;
