@@ -6,7 +6,7 @@ use Core\Contracts\CoreAbstract;
 use Exception;
 use SQLite3;
 
-class SQLiteConnector extends CoreAbstract
+class SQLite extends CoreAbstract
 {
     public $db;
 
@@ -39,6 +39,37 @@ class SQLiteConnector extends CoreAbstract
                 $dataResponse[] = $row;
             }
             return $dataResponse;
+        } catch (Exception $e) {
+            self::ExceptionCapture($e, 'SQLiteConnector::get');
+            return [];
+        }
+    }
+
+    public function getOneBy(array $colums, string $table, array $where = [], string $OrderBy = ''): array
+    {
+        try {
+            $cols = empty($colums) ? '*' : implode(", ", $colums);
+
+            $query = "SELECT $cols FROM $table";
+
+            if (!empty($where)) {
+                $whereClauses = [];
+                foreach ($where as $key => $value) {
+                    $whereClauses[] = "$key = '$value'";
+                }
+                $query .= " WHERE " . implode(' ', $whereClauses);
+            }
+
+            if ($OrderBy) {
+                $query .= " ORDER BY $OrderBy";
+            }
+            
+            $response = $this->db->query("$query LIMIT 1");
+            $dataResponse = [];
+            while ($response && ($row = $response->fetchArray(SQLITE3_ASSOC))){
+                $dataResponse[] = $row;
+            }
+            return reset($dataResponse);
         } catch (Exception $e) {
             self::ExceptionCapture($e, 'SQLiteConnector::get');
             return [];

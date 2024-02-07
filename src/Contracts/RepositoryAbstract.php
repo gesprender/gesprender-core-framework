@@ -3,10 +3,20 @@ declare(strict_types=1);
 
 namespace Core\Contracts;
 
-use Core\Classes\DB;
+use Core\Storage\MySQL;
+use Core\Storage\SQLite;
 
-abstract class RepositoryAbstract extends DB
+abstract class RepositoryAbstract extends MySQL
 {
+    
+    public static function SQLiteAbstract(string $db_name):? SQLite
+    {
+        try {
+            return new SQLite($db_name);
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'RepositoryAbstract:SQLite');
+        }
+    }
 
     protected static function _get(array $Columns, string $table, array $where = [], string $orderBy = ''): array
     {
