@@ -40,7 +40,7 @@ class SQLite extends CoreAbstract
             }
             return $dataResponse;
         } catch (Exception $e) {
-            self::ExceptionCapture($e, 'SQLiteConnector::get');
+            self::ExceptionCapture($e, 'SQLite::get');
             return [];
         }
     }
@@ -71,7 +71,7 @@ class SQLite extends CoreAbstract
             }
             return $dataResponse? reset($dataResponse) : [];
         } catch (Exception $e) {
-            self::ExceptionCapture($e, 'SQLiteConnector::get');
+            self::ExceptionCapture($e, 'SQLite::get');
             return [];
         }
     }
@@ -94,7 +94,7 @@ class SQLite extends CoreAbstract
 
             return $data;
         } catch (Exception $e) {
-            self::ExceptionCapture($e, 'SQLiteConnector::insert');
+            self::ExceptionCapture($e, 'SQLite::insert');
             return false;
         }
     }
@@ -107,7 +107,33 @@ class SQLite extends CoreAbstract
 
             return (bool) $data;
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'SQLiteConnector::deleteById');
+            self::ExceptionCapture($th, 'SQLite::deleteById');
+            return false;
+        }
+    }
+
+    public function update(string $table, array $set, array $where = []): bool
+    {
+        try {
+            $query = "UPDATE $table SET ";
+            foreach ($set as $key => $value) {
+                $query .= "$key = '$value', ";
+            }
+            $query = substr($query, 0, -2);
+            $wher = '';
+            if (!empty($where)) {
+                $wher = ' WHERE ';
+                foreach ($where as $key => $value) {
+                    $wher .= "$key = '$value' ";
+                }
+                $wher = substr($wher, 0, -1);
+            }
+            $query .= $wher;
+
+            $data = $this->db->exec($query);
+            return (bool) $data;
+        } catch (Exception $e) {
+            self::ExceptionCapture($e, 'DB::update');
             return false;
         }
     }
