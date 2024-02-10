@@ -69,7 +69,7 @@ class SQLite extends CoreAbstract
             while ($response && ($row = $response->fetchArray(SQLITE3_ASSOC))){
                 $dataResponse[] = $row;
             }
-            return reset($dataResponse);
+            return $dataResponse? reset($dataResponse) : [];
         } catch (Exception $e) {
             self::ExceptionCapture($e, 'SQLiteConnector::get');
             return [];
