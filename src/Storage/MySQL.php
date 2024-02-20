@@ -60,7 +60,7 @@ class MySQL extends CoreAbstract
             }
             return (array)$response;
         } catch (\Throwable $th) {
-            self::ExceptionResponse($th, 'DB::query');
+            self::ExceptionResponse($th, 'MySQL::query');
         }
     }
 
@@ -234,14 +234,23 @@ class MySQL extends CoreAbstract
         try {
             $query = "UPDATE $table SET ";
             foreach ($set as $key => $value) {
-                $query .= "$key = '$value', ";
+                if(is_bool($value)){
+                    $query .= "$key = ". (int)$value .", ";
+                }else{
+                    $query .= "$key = '$value', ";
+                }
             }
+            
             $query = substr($query, 0, -2);
             $wher = '';
             if (!empty($where)) {
                 $wher = ' WHERE ';
                 foreach ($where as $key => $value) {
-                    $wher .= "$key = '$value' ";
+                    if(is_bool($value)){
+                        $wher .= "$key = " . (int)$value;
+                    }else{
+                        $wher .= "$key = '$value' ";
+                    }
                 }
                 $wher = substr($wher, 0, -1);
             }
