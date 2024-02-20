@@ -43,9 +43,9 @@ final readonly class Kernel
 
     private function getDotenv(): void
     {
-        $loadCustomDefines = '../Project/.env';
+        $loadCustomDefines = '../Backoffice/.env';
         if (file_exists($loadCustomDefines)) {
-            $dotenv = Dotenv::createImmutable('./../Project/');
+            $dotenv = Dotenv::createImmutable('./../Backoffice/');
             $dotenv->load();
         }else{
             $dotenv = Dotenv::createImmutable('./../');
@@ -60,6 +60,12 @@ final readonly class Kernel
         $loadFileEndpointsController = '../Backoffice/Endpoints.php';
         if (file_exists($loadFileEndpointsController)) {
             require $loadFileEndpointsController;
+        }
+
+        # Load backoffice custom defines
+        $loadCustomDefines = '../Backoffice/backend/custom_defines.php';
+        if (file_exists($loadCustomDefines)) {
+            require $loadCustomDefines;
         }
 
         # Load custom defines

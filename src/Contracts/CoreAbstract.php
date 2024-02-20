@@ -19,13 +19,14 @@ abstract class CoreAbstract
         if (getenv('MODE') != 'Prod') {
             return Response::json([
                 'message'   => $exception->getMessage(),
-                'status' => false
+                'status' => false,
+                'Path' => $path
             ], 500);
         }
 
         return Response::json([
             'message'   => 'Server Error',
-            'status' => false
+            'status' => false,
         ], 500);
     }
 
