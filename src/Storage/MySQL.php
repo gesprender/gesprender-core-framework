@@ -18,7 +18,7 @@ class MySQL extends CoreAbstract
             if ($connection->connect_error) throw new Exception('Could not connect to database.');
             return $connection;
         } catch (\Throwable $th) {
-            self::ExceptionResponse($th, 'DB::Connection');
+            self::ExceptionResponse($th, 'MySQL::Connection');
         }
     }
 
@@ -60,6 +60,7 @@ class MySQL extends CoreAbstract
             }
             return (array)$response;
         } catch (\Throwable $th) {
+            ddd($query);
             self::ExceptionResponse($th, 'MySQL::query');
         }
     }
@@ -85,7 +86,11 @@ class MySQL extends CoreAbstract
             if (!empty($where)) {
                 $whereClauses = [];
                 foreach ($where as $key => $value) {
-                    $whereClauses[] = "$key = '$value'";
+                    if(is_bool($value)){
+                        $whereClauses[] = "$key = " . (int)$value;
+                    }else{
+                        $whereClauses[] = "$key = '$value'";
+                    }
                 }
                 $query .= " WHERE " . implode(' ', $whereClauses);
             }
@@ -99,7 +104,7 @@ class MySQL extends CoreAbstract
 
             return (array)$response;
         } catch (Exception $e) {
-            self::ExceptionCapture($e, 'DB::get');
+            self::ExceptionCapture($e, 'MySQL::get');
             return [];
         }
     }
@@ -128,7 +133,7 @@ class MySQL extends CoreAbstract
             }
             return [];
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::findBy');
+            self::ExceptionCapture($th, 'MySQL::findBy');
             return [];
         }
     }
@@ -157,7 +162,7 @@ class MySQL extends CoreAbstract
             }
             return [];
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::findOneBy');
+            self::ExceptionCapture($th, 'MySQL::findOneBy');
             return [];
         }
     }
@@ -174,7 +179,7 @@ class MySQL extends CoreAbstract
 
             return $data ? $data : [];
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::findById');
+            self::ExceptionCapture($th, 'MySQL::findById');
             return [];
         }
     }
@@ -191,7 +196,7 @@ class MySQL extends CoreAbstract
             
             return $data ? $data : [];
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::search');
+            self::ExceptionCapture($th, 'MySQL::search');
             return [];
         }
     }
@@ -218,7 +223,7 @@ class MySQL extends CoreAbstract
 
             return $data;
         } catch (Exception $e) {
-            self::ExceptionCapture($e, 'DB::insert');
+            self::ExceptionCapture($e, 'MySQL::insert');
             return false;
         }
     }
@@ -259,7 +264,7 @@ class MySQL extends CoreAbstract
             return (bool) self::query($query);
 
         } catch (Exception $e) {
-            self::ExceptionCapture($e, 'DB::update');
+            self::ExceptionCapture($e, 'MySQL::update');
             return false;
         }
     }
@@ -276,7 +281,7 @@ class MySQL extends CoreAbstract
 
             return (bool) $data;
         } catch (\Throwable $th) {
-            self::ExceptionCapture($th, 'DB::deleteById');
+            self::ExceptionCapture($th, 'MySQL::deleteById');
             return false;
         }
     }
