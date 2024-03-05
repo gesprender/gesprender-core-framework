@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Core\Storage;
 
+use Core\Classes\Logger;
 use Core\Contracts\CoreAbstract;
 use Exception;
 use InvalidArgumentException;
@@ -40,7 +42,7 @@ class MySQL extends CoreAbstract
             if (!in_array($typeFetch, ['fetch_array', 'fetch_assoc', 'fetch_all'])) {
                 throw new InvalidArgumentException("typeFetch no válido.");
             }
-
+            
             $response = mysqli_query(self::Connection(), $query);
 
             if (!$response) {
@@ -86,9 +88,9 @@ class MySQL extends CoreAbstract
             if (!empty($where)) {
                 $whereClauses = [];
                 foreach ($where as $key => $value) {
-                    if(is_bool($value)){
+                    if (is_bool($value)) {
                         $whereClauses[] = "$key = " . (int)$value;
-                    }else{
+                    } else {
                         $whereClauses[] = "$key = '$value'";
                     }
                 }
@@ -155,7 +157,7 @@ class MySQL extends CoreAbstract
                 }
                 $i++;
             }
-            $query = "SELECT * FROM $table" . "$wher LIMIT 1"; 
+            $query = "SELECT * FROM $table" . "$wher LIMIT 1";
             $data = self::query($query, true, 'fetch_all');
             if ($data) {
                 return reset($data);
@@ -193,7 +195,7 @@ class MySQL extends CoreAbstract
         try {
             $query = "SELECT * FROM $table WHERE product LIKE '%$search%' ORDER BY product ASC";
             $data = self::query($query, true, 'fetch_all');
-            
+
             return $data ? $data : [];
         } catch (\Throwable $th) {
             self::ExceptionCapture($th, 'MySQL::search');
@@ -212,7 +214,14 @@ class MySQL extends CoreAbstract
             $data_value = '';
             foreach ($insert as $key => $value) {
                 $data_key .= "$key, ";
-                $data_value .= "'$value', ";
+                
+                if (empty($value)) {
+                    $data_value .= "'', ";
+                } elseif (is_bool($value) || is_null($value)) {
+                    $data_value .= (bool)$value . ", ";
+                } else {
+                    $data_value .= "'$value', ";
+                }
             }
 
             $data_key = substr($data_key, 0, -2);
@@ -239,21 +248,21 @@ class MySQL extends CoreAbstract
         try {
             $query = "UPDATE $table SET ";
             foreach ($set as $key => $value) {
-                if(is_bool($value)){
-                    $query .= "$key = ". (int)$value .", ";
-                }else{
+                if (is_bool($value)) {
+                    $query .= "$key = " . (int)$value . ", ";
+                } else {
                     $query .= "$key = '$value', ";
                 }
             }
-            
+
             $query = substr($query, 0, -2);
             $wher = '';
             if (!empty($where)) {
                 $wher = ' WHERE ';
                 foreach ($where as $key => $value) {
-                    if(is_bool($value)){
+                    if (is_bool($value)) {
                         $wher .= "$key = " . (int)$value;
-                    }else{
+                    } else {
                         $wher .= "$key = '$value' ";
                     }
                 }
@@ -262,7 +271,6 @@ class MySQL extends CoreAbstract
             $query .= $wher;
 
             return (bool) self::query($query);
-
         } catch (Exception $e) {
             self::ExceptionCapture($e, 'MySQL::update');
             return false;
