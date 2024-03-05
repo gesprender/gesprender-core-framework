@@ -30,7 +30,7 @@ class Request extends CoreAbstract
         }
     }
 
-    public static function getValue($key, $default = false): string|bool
+    public static function getValue($key, $default = false): string|bool|null|int
     {
         if(!isset($_REQUEST[$key])) return $default;
         
