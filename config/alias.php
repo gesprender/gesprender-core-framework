@@ -12,6 +12,11 @@ function ddd($var, $json_flag = false)
 
 function getVersion(): string
 {
+    $pathComposerJson = __DIR__ . "/../Backoffice/composer.json";
+    if (file_exists($pathComposerJson)) {
+        $composerJson = json_decode(file_get_contents($pathComposerJson), true);
+        return $composerJson['version'] ?? "0.0.1";
+    }
     $pathComposerJson = __DIR__ . "/../Project/composer.json";
     if (file_exists($pathComposerJson)) {
         $composerJson = json_decode(file_get_contents($pathComposerJson), true);
