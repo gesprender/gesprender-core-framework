@@ -56,26 +56,14 @@ final readonly class Kernel
     private function leadFiles()
     {
 
-        # Load backoffice Endpoints
-        $loadFileEndpointsController = '../Backoffice/Endpoints.php';
-        if (file_exists($loadFileEndpointsController)) {
-            require $loadFileEndpointsController;
-        }
-
         # Load backoffice custom defines
         $loadCustomDefines = '../Backoffice/backend/custom_defines.php';
         if (file_exists($loadCustomDefines)) {
             require $loadCustomDefines;
         }
 
-        # Load custom defines
-        $loadCustomDefines = '../Project/backend/custom_defines.php';
-        if (file_exists($loadCustomDefines)) {
-            require $loadCustomDefines;
-        }
-        
-        # Load custom Endpoints of the client
-        $loadFileEndpointsController = '../Project/backend/Endpoints.php';
+        # Load backoffice Endpoints
+        $loadFileEndpointsController = '../Backoffice/Endpoints.php';
         if (file_exists($loadFileEndpointsController)) {
             require $loadFileEndpointsController;
         }
