@@ -12,8 +12,6 @@ define('PROTOCOLE', PROTOCOLE_SECURE ? 'https://': 'http://');
 define('HOST', PROTOCOLE . $_ENV['HOST']);
 define('HOST_REACT', "{$_ENV['HOST_REACT']}:{$_ENV['REACT_PORT']}");
 define('HOST_API', $_ENV['HOST_API']);
-define('HOST_MARKET', $_ENV['HOST_MARKET']);
-define('HOST_PRECIOS', $_ENV['HOST_LISTA_PRECIOS']);
 define('REACT_PORT', $_ENV['REACT_PORT']);
 
 
@@ -25,7 +23,6 @@ if(MODE == 'Prod'){
 # Paths
 define('PATH_SRC', HOST.'/src/');
 define('PATH_LOGS', HOST.'/logs/');
-define('PATH_REACT', HOST.'/themes/default/');
 define('PATH_CONFIG', HOST.'/config/');
 define('PATH_VENDOR', HOST.'/vendor/');
 define('PATH_UPLOAD', HOST.'/upload/');
