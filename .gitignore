@@ -5,6 +5,7 @@ package-lock.json
 .env
 sitemap.xml
 .phpunit.result.cache
+db.sql
 
 # Folders
 /node_modules
