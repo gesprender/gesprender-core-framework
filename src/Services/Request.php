@@ -30,18 +30,15 @@ class Request extends CoreAbstract
         }
     }
 
-    public static function getValue($key, $default = false): string|bool|null|int
+    public static function getValue($key, $default = false): string|bool|null|int|array
     {
-        if(!isset($_REQUEST[$key])) return $default;
+        $payload = json_decode(file_get_contents("php://input"), true);
+
+        if(isset($payload[$key])) return $payload[$key];
+
+        if(isset($_REQUEST[$key])) return $_REQUEST[$key];
         
-        if(!Validations::StringSQL($_REQUEST[$key])){
-            $chars = implode(', ', Validations::CHARACTERS_INVALIDS);
-            return Response::json([
-                'message' => "Haz ingresado un caracter no aceptado. Ej: $chars",
-                'data' => []
-            ], 400);
-        }
-        return $_REQUEST[$key];
+        return $default;
     }
 
     public static function getValueByPass($key, $default = false): string|bool|null|int
