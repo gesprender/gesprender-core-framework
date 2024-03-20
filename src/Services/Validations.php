@@ -10,7 +10,7 @@ class Validations
     {
 
         if (is_numeric($string)) {
-            return (bool) $string;
+            return true;
         }
 
         # Potentially dangerous characters list
