@@ -10,8 +10,9 @@ class Request extends CoreAbstract
 
     public static function On(string $key, $callback): void
     {
+        $payload = json_decode(file_get_contents("php://input"), true);
         $pathRequest = str_replace("/api/index.php", "", $_SERVER['REQUEST_URI']);
-        if(array_key_exists($key, $_REQUEST) || $pathRequest == $key){
+        if(array_key_exists($key, $_REQUEST) || $pathRequest == $key || array_key_exists($key, $payload)){
             $callback();
         }
     }
