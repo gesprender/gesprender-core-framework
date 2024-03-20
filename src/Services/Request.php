@@ -41,6 +41,12 @@ class Request extends CoreAbstract
                 'data' => []
             ], 400);
         }
+        return $_REQUEST[$key];
+    }
+
+    public static function getValueByPass($key, $default = false): string|bool|null|int
+    {
+        if(!isset($_REQUEST[$key])) return $default;
 
         return $_REQUEST[$key];
     }
