@@ -250,7 +250,9 @@ class MySQL extends CoreAbstract
             foreach ($set as $key => $value) {
                 if (is_bool($value)) {
                     $query .= "$key = " . (int)$value . ", ";
-                } else {
+                } else if($value == 'NULL') {
+                    $query .= "$key = NULL, ";
+                }else {
                     $query .= "$key = '$value', ";
                 }
             }
