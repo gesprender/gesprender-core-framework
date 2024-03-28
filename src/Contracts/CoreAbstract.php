@@ -5,6 +5,7 @@ namespace Core\Contracts;
 
 use Core\Classes\Logger;
 use Core\Contracts\Traits\TraitResponseVariants;
+use Core\Contracts\Traits\TraitValidateForm;
 use Throwable;
 
 /**
@@ -14,6 +15,7 @@ use Throwable;
 abstract class CoreAbstract
 {
     use TraitResponseVariants;
+    use TraitValidateForm;
 
     public static function ExceptionCapture(Throwable $exception, string $path): void
     {

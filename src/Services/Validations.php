@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 namespace Core\Services;
+use InvalidArgumentException;
 
 class Validations
 {
@@ -31,5 +32,18 @@ class Validations
         if(is_array(json_decode($string, true))) return true;
 
         return false;
+    }
+
+    public static function validateIntegrityForm(array $dataForm):? InvalidArgumentException
+    {
+        $payloadJson = json_decode(file_get_contents("php://input"), true);
+        $dataRequest = $_REQUEST;
+        $data = array_merge($payloadJson, $dataRequest);
+        foreach ($dataForm as $key) 
+        {
+            if(!isset($data[$key])) return throw new InvalidArgumentException("Key '$key' not found");
+        }
+
+        return null;
     }
 }
