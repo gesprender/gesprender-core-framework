@@ -3,6 +3,7 @@
 namespace Config;
 
 use Core\Controllers\ExceptionsLogsController;
+use Core\Services\JsonResponse;
 use Core\Services\Response;
 use Dotenv\Dotenv;
 
@@ -28,13 +29,13 @@ final readonly class Kernel
         ExceptionsLogsController::Endpoints();
 
         if ($_REQUEST) {
-            Response::json([
+            new JsonResponse([
                 'status' => false,
                 'message' => 'Route not found.'
             ], 404);
         }
 
-        Response::json([
+        new JsonResponse([
             'status' => true,
             'message' => 'Welcom to Api.',
             'data' => []

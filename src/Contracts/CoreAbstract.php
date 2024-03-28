@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Core\Contracts;
 
 use Core\Classes\Logger;
-use Core\Services\Response;
+use Core\Contracts\Traits\TraitResponseVariants;
 use Throwable;
 
 /**
@@ -13,22 +13,7 @@ use Throwable;
  */
 abstract class CoreAbstract
 {
-    public static function ExceptionResponse(Throwable $exception, string $path = 'CoreAbstract'): string
-    {
-        Logger::error($path, $exception->getMessage());
-        if (getenv('MODE') != 'Prod') {
-            return Response::json([
-                'message'   => $exception->getMessage(),
-                'status' => false,
-                'Path' => $path
-            ], 500);
-        }
-
-        return Response::json([
-            'message'   => 'Server Error',
-            'status' => false,
-        ], 500);
-    }
+    use TraitResponseVariants;
 
     public static function ExceptionCapture(Throwable $exception, string $path): void
     {
