@@ -20,7 +20,7 @@ trait TraitResponseVariants
 
     private static function serverError(string $message): JsonResponse
     {
-        if (getenv('MODE') != 'Prod') $message = 'Internal Server error';
+        if (getenv('MODE') == 'Prod') $message = 'Internal Server error';
         return new JsonResponse([
             'message' => $message,
             'status' => false,
