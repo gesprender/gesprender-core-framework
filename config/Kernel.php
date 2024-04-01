@@ -2,7 +2,6 @@
 
 namespace Config;
 
-use Core\Controllers\ExceptionsLogsController;
 use Core\Services\JsonResponse;
 use Core\Services\Response;
 use Dotenv\Dotenv;
@@ -24,22 +23,9 @@ final readonly class Kernel
         require  'defines.php';
 
         $this->leadFiles();
-
-        # Core Endpoints default
-        ExceptionsLogsController::Endpoints();
-
-        if ($_REQUEST) {
-            new JsonResponse([
-                'status' => false,
-                'message' => 'Route not found.'
-            ], 404);
-        }
-
-        new JsonResponse([
-            'status' => true,
-            'message' => 'Welcom to Api.',
-            'data' => []
-        ], 200);
+        $this->endpointNotFound();
+        $this->Welcome();
+        
     }
 
     private function getDotenv(): void
@@ -70,4 +56,24 @@ final readonly class Kernel
         }
         
     }
+
+    private function endpointNotFound():? JsonResponse
+    {
+        if ($_REQUEST) {
+            return new JsonResponse([
+                'status' => false,
+                'message' => 'Route not found.'
+            ], 404);
+        }
+    }
+
+    private function Welcome():? JsonResponse
+    {
+        return new JsonResponse([
+            'status' => true,
+            'message' => 'Welcom to Api.',
+            'data' => []
+        ], 200);
+    }
+    
 }
