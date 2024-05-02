@@ -1,4 +1,5 @@
 FROM php:8.2.3-fpm
+LABEL maintainer="Custom build for GesPrender Core-Framework"
 
 # Instala las extensiones de PHP necesarias, herramientas y utilidades para descomprimir archivos
 RUN apt-get update && apt-get install -y \

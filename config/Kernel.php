@@ -57,7 +57,7 @@ final readonly class Kernel
         
     }
 
-    private function endpointNotFound():? JsonResponse
+    private function endpointNotFound()
     {
         if ($_REQUEST) {
             return new JsonResponse([

@@ -5,6 +5,10 @@ services:
     container_name: MySQL
     environment:
       MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./docker/db:/var/lib/mysql
+    ports:
+      - 3300:3306
     networks:
       - gesprendercoreframework
   php:

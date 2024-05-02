@@ -11,9 +11,10 @@ db.sql
 /node_modules
 /vendor
 /dist
-/logs
+/logs/*
 /upload
 /src/Modules
 /Project
 /Project_*/
 /Backoffice
+/Docker/db
