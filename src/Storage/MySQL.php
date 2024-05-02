@@ -1,10 +1,8 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Core\Storage;
 
-use Core\Classes\Logger;
 use Core\Contracts\CoreAbstract;
 use Exception;
 use InvalidArgumentException;
@@ -31,7 +29,7 @@ class MySQL extends CoreAbstract
      * @param bool $customFetch Use custom fetch mode to result query
      * @param string $typeFetch Type of fetch mode. Possible values are: fetch_array or fetch_all or fetch_assoc
      */
-    public static function query(string $query, bool $customFetch = false, string $typeFetch = 'fetch_all'): ?array
+    public static function query(string $query, bool $customFetch = true, string $typeFetch = 'fetch_all'): ?array
     {
         try {
 
@@ -62,7 +60,6 @@ class MySQL extends CoreAbstract
             }
             return (array)$response;
         } catch (\Throwable $th) {
-            ddd($query);
             self::ExceptionResponse($th, 'MySQL::query');
         }
     }
@@ -228,7 +225,7 @@ class MySQL extends CoreAbstract
             $data_value = substr($data_value, 0, -2);
 
             $query = "INSERT INTO $table ($data_key) VALUES ($data_value)";
-            $data = (bool) self::query($query);
+            $data = (bool) self::query($query, false);
 
             return $data;
         } catch (Exception $e) {
@@ -272,7 +269,7 @@ class MySQL extends CoreAbstract
             }
             $query .= $wher;
 
-            return (bool) self::query($query);
+            return (bool) self::query($query, false);
         } catch (Exception $e) {
             self::ExceptionCapture($e, 'MySQL::update');
             return false;
@@ -287,11 +284,24 @@ class MySQL extends CoreAbstract
     {
         try {
             $query = "DELETE FROM $table WHERE id = $idToDelete";
-            $data = self::query($query);
+            $data = self::query($query, false);
 
             return (bool) $data;
         } catch (\Throwable $th) {
             self::ExceptionCapture($th, 'MySQL::deleteById');
+            return false;
+        }
+    }
+
+    protected static function deleteBy(string $table, string $conditionRemove): bool
+    {
+        try {
+            $query = "DELETE FROM $table WHERE $conditionRemove";
+            $data = self::query($query, false);
+
+            return (bool) $data;
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'MySQL::deleteBy');
             return false;
         }
     }
