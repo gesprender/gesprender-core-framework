@@ -16,7 +16,7 @@
             "Core\\": "src/",
             "Config\\": "config/",
             "Project\\": "Project/backend",
-            "Backoffice\\": "Backoffice/backend"
+            "Backoffice\\": "Backoffice/src"
         }
     },
     "minimum-stability": "dev",

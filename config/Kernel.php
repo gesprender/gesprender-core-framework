@@ -44,7 +44,7 @@ final readonly class Kernel
     {
 
         # Load backoffice custom defines
-        $loadCustomDefines = '../Backoffice/backend/custom_defines.php';
+        $loadCustomDefines = '../Backoffice/src/custom_defines.php';
         if (file_exists($loadCustomDefines)) {
             require $loadCustomDefines;
         }
@@ -65,6 +65,7 @@ final readonly class Kernel
                 'message' => 'Route not found.'
             ], 404);
         }
+        return null;
     }
 
     private function Welcome():? JsonResponse
