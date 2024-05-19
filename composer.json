@@ -15,7 +15,7 @@
         "psr-4": {
             "Core\\": "src/",
             "Config\\": "config/",
-            "Project\\": "Project/backend",
+            "Project\\": "Project/src",
             "Backoffice\\": "Backoffice/src"
         }
     },
