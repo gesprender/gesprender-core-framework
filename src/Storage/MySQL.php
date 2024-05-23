@@ -295,4 +295,17 @@ class MySQL extends CoreAbstract
             return false;
         }
     }
+
+    protected static function deleteBy(string $table, string $by): bool
+    {
+        try {
+            $query = "DELETE FROM $table WHERE $by";
+            $data = self::query($query);
+
+            return (bool) $data;
+        } catch (\Throwable $th) {
+            self::ExceptionCapture($th, 'MySQL::deleteById');
+            return false;
+        }
+    }
 }

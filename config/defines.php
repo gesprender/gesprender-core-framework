@@ -30,3 +30,10 @@ define('PATH_UPLOAD', HOST.'/upload/');
 
 #   Definimos zona horaria ARGENTINA
 date_default_timezone_set('America/Argentina/Buenos_Aires');
+
+
+# Redis
+define('CUSTOM_REDIS_ENDPOINT', 'RedisContainer');
+define('CUSTOM_REDIS_TTL', '5');
+define('CUSTOM_REDIS_ENABLE', true);
+define('CUSTOM_REDIS_USEFS', 1);

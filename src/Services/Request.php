@@ -37,6 +37,13 @@ class Request extends CoreAbstract
         return $headers;
     }
 
+    public static function Route(string $path, $callback): void
+    {
+        if($_SERVER['REQUEST_URI'] == "/api/index.php$path") {
+            $callback();
+        }
+    }
+
     public function get($key, $default = false): string|bool|null|int|array
     {
         $value = $default;
