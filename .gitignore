@@ -17,3 +17,5 @@ db.sql
 /Project
 /Project_*/
 /Backoffice
+/Sites/*
+/Docker/postgresql/*
