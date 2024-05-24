@@ -1,7 +1,7 @@
 {
-    "name": "core_framework",
-    "version": "0.0.1",
-    "scripts": {
+  "name": "core_framework",
+  "version": "0.0.1",
+  "scripts": {
       "dev": "cd Backoffice/theme && npm run dev"
     }
   }
