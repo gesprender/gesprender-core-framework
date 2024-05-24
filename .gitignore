@@ -6,6 +6,8 @@ package-lock.json
 sitemap.xml
 .phpunit.result.cache
 db.sql
+docker-compose.yml
+/docker/nginx.conf
 
 # Folders
 /node_modules
@@ -19,3 +21,4 @@ db.sql
 /Backoffice
 /Sites/*
 /Docker/postgresql/*
+/Docker/mysql/*
