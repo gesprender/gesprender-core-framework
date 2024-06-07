@@ -62,7 +62,6 @@ class MySQL extends CoreAbstract
             }
             return (array)$response;
         } catch (\Throwable $th) {
-            ddd($query);
             self::ExceptionResponse($th, 'MySQL::query');
         }
     }

@@ -14,6 +14,9 @@ final readonly class Kernel
 
         $this->getDotenv();
 
+        
+        if($_ENV['MODE'] == 'prod') error_reporting(E_ALL & ~E_WARNING);
+
         # Load Session
         if (!isset($_SESSION)) {
             session_start();
