@@ -10,10 +10,7 @@ define('PROTOCOLE_SECURE', (bool)$_ENV['PROTOCOLE_SECURE']);
 define('PROTOCOLE', PROTOCOLE_SECURE ? 'https://': 'http://');
 
 define('HOST', PROTOCOLE . $_ENV['HOST']);
-define('HOST_REACT', "{$_ENV['HOST_REACT']}:{$_ENV['REACT_PORT']}");
-define('HOST_API', $_ENV['HOST_API']);
-define('REACT_PORT', $_ENV['REACT_PORT']);
-
+define('HOST_REACT', $_ENV['HOST_REACT']);
 
 if(MODE == 'Prod'){
     # Errors Display

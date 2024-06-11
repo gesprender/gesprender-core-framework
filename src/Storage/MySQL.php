@@ -16,7 +16,22 @@ class MySQL extends CoreAbstract
     private static function Connection(): ?mysqli
     {
         try {
-            $connection = new mysqli($_ENV['DDBB_HOST'], $_ENV['DDBB_USER'], $_ENV['DDBB_PASSWORD'], $_ENV['DDBB_DBNAME']);
+            $db_host = $_ENV['DDBB_HOST'];
+            $db_user = $_ENV['DDBB_USER'];
+            $db_name = $_ENV['DDBB_DBNAME'];
+            $db_password = $_ENV['DDBB_PASSWORD'];
+
+            if((bool) $_ENV['MULTI_TENANT_MODE']) {
+                $domain = $_SERVER['HTTP_HOST'];
+                if(!isset($_ENV[$domain])) throw new Exception("Backend domain not found");
+                
+                $db_name = $_ENV[$domain];
+                if(!isset($_ENV["{$db_name}_password"])) throw new Exception("Backend domain not found");
+                
+                $db_password = $_ENV["{$db_name}_password"];
+            }
+
+            $connection = new mysqli($db_host, $db_user, $db_password, $db_name);
             if ($connection->connect_error) throw new Exception('Could not connect to database.');
             return $connection;
         } catch (\Throwable $th) {
