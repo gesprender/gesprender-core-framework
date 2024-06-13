@@ -15,15 +15,16 @@ trait TraitResponseVariants
 
         if($exception instanceof AuthException) return self::invalidAuthorization($exception->getMessage());
 
-        return self::serverError($exception->getMessage());
+        return self::serverError($exception->getMessage(), $exception->getTrace());
     }
 
-    private static function serverError(string $message): JsonResponse
+    private static function serverError(string $message, array $trace): JsonResponse
     {
         if (getenv('MODE') == 'Prod') $message = 'Internal Server error';
         return new JsonResponse([
             'message' => $message,
             'status' => false,
+            'trace' => $trace,
             'data' => []
         ], 500, ['Content-Type' => 'application/json']);
     }
