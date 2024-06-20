@@ -2,7 +2,8 @@
   "name": "core_framework",
   "version": "0.0.1",
   "scripts": {
-      "dev": "cd Backoffice/theme && npm run init"
+      "dev": "cd Backoffice/theme && npm run init",
+      "build": "cd Backoffice/theme && npm run build"
     }
   }
   
