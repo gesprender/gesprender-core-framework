@@ -1,9 +1,9 @@
 {
   "name": "core_framework",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
-      "dev": "cd Backoffice/theme && npm run init",
-      "build": "cd Backoffice/theme && npm run build"
+      "init": "node run-project.js"
     }
   }
   
