@@ -8,6 +8,9 @@ sitemap.xml
 db.sql
 docker-compose.yml
 /docker/nginx.conf
+Dockerfile
+Dockerfile.react
+.dockerignore
 
 # Folders
 /node_modules

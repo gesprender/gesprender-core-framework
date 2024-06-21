@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-      "init": "node run-project.js"
+      "init": "node run-project.js && docker compose up -d --build"
     }
   }
   
