@@ -18,6 +18,10 @@ const filesToCopy = [
     { src: path.join(__dirname, 'Backoffice/configuration/Docker', 'Dockerfile.react'), dst: path.join(__dirname, 'Dockerfile.react') },
     { src: path.join(__dirname, 'Backoffice/configuration/Docker', 'docker-compose.yml'), dst: path.join(__dirname, 'docker-compose.yml') },
     { src: path.join(__dirname, 'Backoffice/configuration/Docker', '.dockerignore'), dst: path.join(__dirname, '.dockerignore') },
+    { src: path.join(__dirname, 'Backoffice/configuration/Docker', 'nginx.conf'), dst: path.join(`${__dirname}/Docker`, 'nginx.conf') }
+];
+
+const filesToCopyInDockerFolder = [
     { src: path.join(__dirname, 'Backoffice/configuration/Docker', 'nginx.conf'), dst: path.join(__dirname, 'nginx.conf') }
 ];
 
@@ -31,3 +35,4 @@ const copyFile = (src, dst) => {
 }
 
 filesToCopy.forEach(file => copyFile(file.src, file.dst));
+filesToCopyInDockerFolder.forEach(file => copyFile(file.src, file.dst));
