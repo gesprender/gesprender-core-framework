@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
       "init": "node run-project.js && docker compose up -d --build",
-      "dev": ""
+      "dev": "cd Backoffice/theme && npm run dev"
     }
   }
   
