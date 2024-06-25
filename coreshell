@@ -6,7 +6,7 @@
 
 namespace Config;
 
-use Core\Classes\DB;
+use Core\Storage\MySQL;
 use Coreshell\Coreshell as CoreshellKernel;
 use Dotenv\Dotenv;
 
@@ -27,7 +27,7 @@ class CoreShell  extends CoreshellKernel
 {
     public function __construct()
     {
-        $DB = new DB();
+        $DB = new MySQL();
         if (file_exists('./Backoffice/.env')) {
             $dotenv = Dotenv::createImmutable('./Backoffice/');
         } else {
