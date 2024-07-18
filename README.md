@@ -2,7 +2,6 @@
 
 Minimalist PHP core for projects
 
-
 Estructura de carpetas
 
 ```php
@@ -23,7 +22,7 @@ Estructura de carpetas
     └── php.ini
 └── 📁Logs
     └── errors.log
-└── 📁Project
+└── 📁Sites
 └── 📁src
     └── 📁Classes
     └── 📁Contracts
