@@ -21,18 +21,23 @@ class MySQL extends CoreAbstract
             $db_name = $_ENV['DDBB_DBNAME'];
             $db_password = $_ENV['DDBB_PASSWORD'];
 
-            if((bool) $_ENV['MULTI_TENANT_MODE']) {
-                $domain = $_SERVER['HTTP_HOST'];
-                if(!isset($_ENV[$domain])) throw new Exception("Backend domain not found");
-                
-                $db_name = $_ENV[$domain];
-                if(!isset($_ENV["{$db_name}_password"])) throw new Exception("Backend domain not found");
-                
-                $db_password = $_ENV["{$db_name}_password"];
+            if ((bool) $_ENV['MULTI_TENANT_MODE']) {
+                if (isset($_SERVER['HTTP_HOST'])) {
+                    $domain = $_SERVER['HTTP_HOST'];
+                    if (!isset($_ENV[$domain]))
+                        throw new Exception("Backend domain not found");
+
+                    $db_name = $_ENV[$domain];
+                    if (!isset($_ENV["{$db_name}_password"]))
+                        throw new Exception("Backend domain not found");
+
+                    $db_password = $_ENV["{$db_name}_password"];
+                }
             }
 
             $connection = new mysqli($db_host, $db_user, $db_password, $db_name);
-            if ($connection->connect_error) throw new Exception('Could not connect to database.');
+            if ($connection->connect_error)
+                throw new Exception('Could not connect to database.');
             return $connection;
         } catch (\Throwable $th) {
             self::ExceptionResponse($th, 'MySQL::Connection');
@@ -57,7 +62,7 @@ class MySQL extends CoreAbstract
             if (!in_array($typeFetch, ['fetch_array', 'fetch_assoc', 'fetch_all'])) {
                 throw new InvalidArgumentException("typeFetch no válido.");
             }
-            
+
             $response = mysqli_query(self::Connection(), $query);
 
             if (!$response) {
@@ -75,7 +80,7 @@ class MySQL extends CoreAbstract
                         return $response ? $response->fetch_all(MYSQLI_ASSOC) : [];
                 }
             }
-            return (array)$response;
+            return (array) $response;
         } catch (\Throwable $th) {
             self::ExceptionResponse($th, 'MySQL::query');
         }
@@ -103,7 +108,7 @@ class MySQL extends CoreAbstract
                 $whereClauses = [];
                 foreach ($where as $key => $value) {
                     if (is_bool($value)) {
-                        $whereClauses[] = "$key = " . (int)$value;
+                        $whereClauses[] = "$key = " . (int) $value;
                     } else {
                         $whereClauses[] = "$key = '$value'";
                     }
@@ -118,7 +123,7 @@ class MySQL extends CoreAbstract
 
             $response = self::query($query, $fetch, $typeFetch);
 
-            return (array)$response;
+            return (array) $response;
         } catch (Exception $e) {
             self::ExceptionCapture($e, 'MySQL::get');
             return [];
@@ -228,11 +233,11 @@ class MySQL extends CoreAbstract
             $data_value = '';
             foreach ($insert as $key => $value) {
                 $data_key .= "$key, ";
-                
+
                 if (empty($value) && strlen($value) == 0) {
                     $data_value .= "'', ";
                 } elseif (is_bool($value) || is_null($value)) {
-                    $data_value .= (bool)$value . ", ";
+                    $data_value .= (bool) $value . ", ";
                 } else {
                     $data_value .= "'$value', ";
                 }
@@ -263,10 +268,10 @@ class MySQL extends CoreAbstract
             $query = "UPDATE $table SET ";
             foreach ($set as $key => $value) {
                 if (is_bool($value)) {
-                    $query .= "$key = " . (int)$value . ", ";
-                } else if($value == 'NULL') {
+                    $query .= "$key = " . (int) $value . ", ";
+                } else if ($value == 'NULL') {
                     $query .= "$key = NULL, ";
-                }else {
+                } else {
                     $query .= "$key = '$value', ";
                 }
             }
@@ -277,7 +282,7 @@ class MySQL extends CoreAbstract
                 $wher = ' WHERE ';
                 foreach ($where as $key => $value) {
                     if (is_bool($value)) {
-                        $wher .= "$key = " . (int)$value;
+                        $wher .= "$key = " . (int) $value;
                     } else {
                         $wher .= "$key = '$value' ";
                     }

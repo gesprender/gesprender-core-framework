@@ -118,7 +118,7 @@ class JsonResponse
      */
     public static function View(array $data, int $status = 200): string 
     {
-        header('Content-Type: application/json', true, $status);
+        // header('Content-Type: application/json', true, $status);
         echo (json_encode($data));
         die;
     }

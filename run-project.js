@@ -20,15 +20,15 @@ const filesToCopy = [
 ];
 
 const filesToCopyInDockerFolder = [
-    { src: path.join(__dirname, 'Backoffice/configuration/Docker', 'nginx.conf'), dst: path.join(__dirname, 'nginx.conf') }
+    { src: path.join(__dirname, 'Backoffice/configuration/Docker', 'nginx.conf'), dst: path.join(`${__dirname}/Docker`, 'nginx.conf') }
 ];
 
 const copyFile = (src, dst) => {
     try {
         fs.copyFileSync(src, dst);
-        console.log(`Copied ${src} to ${dst}`);
+        console.log(`[ Ok ]`);
     } catch (err) {
-        console.error(`Error copying ${src} to ${dst}:`, err);
+        console.error(`[ Error ] - ${src} to ${dst}:`, err);
     }
 }
 
