@@ -53,11 +53,24 @@ final readonly class Kernel
         }
 
         # Load backoffice Endpoints
-        $loadFileEndpointsController = '../Backoffice/Endpoints.php';
-        if (file_exists($loadFileEndpointsController)) {
-            require $loadFileEndpointsController;
-        }
+        $this->autoload_controllers('../Backoffice/src/Modules');
         
+    }
+
+    private function autoload_controllers($directory): void
+    {
+        $modules = scandir($directory);
+        foreach ($modules as $module) {
+            if ($module === '.' || $module === '..') continue;
+            
+            $controllerPath = $directory . '/' . $module . '/Infrastructure/' . $module . 'Controller.php';
+            if (file_exists($controllerPath)) {
+                $controllerClass = 'Backoffice\\Modules\\' . $module . '\\Infrastructure\\' . $module . 'Controller';
+                if (class_exists($controllerClass)) {
+                    $controllerClass::endpoints();
+                }
+            }
+        }
     }
 
     private function endpointNotFound():? JsonResponse
