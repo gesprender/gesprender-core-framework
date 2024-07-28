@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Core\Services;
 
+use Backoffice\Modules\User\Infrastructure\Services\Security;
 use Core\Contracts\CoreAbstract;
 
 class Request extends CoreAbstract
@@ -37,8 +38,10 @@ class Request extends CoreAbstract
         return $headers;
     }
 
-    public static function Route(string $path, $callback): void
+    public static function Route(string $path, $callback, bool $UseSecurityMiddleware = false): void
     {
+        if($UseSecurityMiddleware) Security::validateToken();
+
         if($_SERVER['REQUEST_URI'] == "/api/index.php$path") {
             $callback();
         }
@@ -55,8 +58,10 @@ class Request extends CoreAbstract
         return $value;
     }
 
-    public static function On(string $key, $callback): void
+    public static function On(string $key, $callback, bool $UseSecurityMiddleware = false): void
     {
+        if($UseSecurityMiddleware) Security::validateToken();
+
         $payload = json_decode(file_get_contents("php://input"), true);
         $pathRequest = str_replace("/api/index.php", "", $_SERVER['REQUEST_URI']);
         if(array_key_exists($key, $_REQUEST) || $pathRequest == $key || array_key_exists($key, (array)$payload)){

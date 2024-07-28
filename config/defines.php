@@ -17,6 +17,9 @@ if(MODE == 'Prod'){
     error_reporting(1);
 }
 
+# Use global defines
+define('USE_MIDDLEWARE', true);
+
 # Paths
 define('PATH_SRC', HOST.'/src/');
 define('PATH_LOGS', HOST.'/logs/');
