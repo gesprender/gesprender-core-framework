@@ -40,9 +40,9 @@ class Request extends CoreAbstract
 
     public static function Route(string $path, $callback, bool $UseSecurityMiddleware = false): void
     {
-        if($UseSecurityMiddleware) Security::validateToken();
-
+        
         if($_SERVER['REQUEST_URI'] == "/api/index.php$path") {
+            if($UseSecurityMiddleware) Security::validateToken();
             $callback();
         }
     }
@@ -60,11 +60,11 @@ class Request extends CoreAbstract
 
     public static function On(string $key, $callback, bool $UseSecurityMiddleware = false): void
     {
-        if($UseSecurityMiddleware) Security::validateToken();
-
+        
         $payload = json_decode(file_get_contents("php://input"), true);
         $pathRequest = str_replace("/api/index.php", "", $_SERVER['REQUEST_URI']);
         if(array_key_exists($key, $_REQUEST) || $pathRequest == $key || array_key_exists($key, (array)$payload)){
+            if($UseSecurityMiddleware) Security::validateToken();
             $callback();
         }
     }
