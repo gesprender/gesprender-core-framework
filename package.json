@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
       "init": "node run-project.js && docker compose up -d --build && docker exec -it MySQL_empremarket /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS empremarket; CREATE DATABASE IF NOT EXISTS empremarket;'\" && docker exec -it PHP8.2_empremarket /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\"",
-      "dev": "cd Backoffice && npm run dev"
+      "dev": "docker stop React_empremarket && cd Backoffice && npm run dev"
     }
   }
   
