@@ -11,6 +11,7 @@ docker-compose.yml
 Dockerfile
 Dockerfile.react
 .dockerignore
+.htaccess
 
 # Folders
 /node_modules

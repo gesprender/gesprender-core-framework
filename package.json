@@ -6,7 +6,9 @@
       "init": "node run-project.js && docker compose up -d --build && docker exec -it MySQL_empremarket /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS empremarket; CREATE DATABASE IF NOT EXISTS empremarket;'\" && docker exec -it PHP8.2_empremarket /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\"",
       "install": "node run-project.js && docker compose up -d --build && docker exec -it MySQL_empremarket /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS empremarket; CREATE DATABASE IF NOT EXISTS empremarket;'\" && docker exec -it PHP8.2_empremarket /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\"",
       "dev": "docker stop React_empremarket && cd Backoffice && npm run dev",
-      "db": "docker exec -it MySQL_empremarket /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS empremarket; CREATE DATABASE IF NOT EXISTS empremarket;'\" && docker exec -it PHP8.2_empremarket /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\""
+      "db": "docker exec -it MySQL_empremarket /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS empremarket; CREATE DATABASE IF NOT EXISTS empremarket;'\" && docker exec -it PHP8.2_empremarket /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\"",
+      "apache": "node run-project-apache.js && composer install && php coreshell migrations:migrate && cd Backoffice && npm run install",
+      "apache-dev": "cd Backoffice && npm run dev"
     }
   }
   
