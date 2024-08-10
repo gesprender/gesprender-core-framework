@@ -8,7 +8,8 @@
       "dev": "docker compose up -d && docker stop React_empremarket && cd Backoffice && npm run dev",
       "db": "docker exec -it MySQL_empremarket /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS empremarket; CREATE DATABASE IF NOT EXISTS empremarket;'\" && docker exec -it PHP8.2_empremarket /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\"",
       "apache": "node run-project-apache.js && composer install && php coreshell migrations:migrate && cd Backoffice && npm run install",
-      "apache-dev": "cd Backoffice && npm run dev"
+      "apache-dev": "cd Backoffice && npm run dev",
+      "build": "cd Backoffice && npm run build"
     }
   }
   
