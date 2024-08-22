@@ -2,6 +2,9 @@
 
 Minimalist PHP core for projects.
 
+The framework was designed for rapid development, without the heavy caching or processes that frameworks like Symfony or Laravel bring by default. We provide an integrated Backend and Frontend (Backoffice) so that the developer only needs to focus on developing the required functionality and integrating it into the client's website.
+
+Another great feature I incorporated is "Multi-Tenant Mode," which allows the code to be deployed once and used by multiple websites (multiple clients). The framework recognizes the domain making the request and loads the database assigned to that domain. See more in the `.env` file configuration.
 
 # Install
 
