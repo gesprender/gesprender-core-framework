@@ -40,8 +40,8 @@ class Request extends CoreAbstract
 
     public static function Route(string $path, $callback, bool $UseSecurityMiddleware = false): void
     {
-        
-        if($_SERVER['REQUEST_URI'] == "/api/index.php$path") {
+        $cleanPath = explode('?', $_SERVER['REQUEST_URI']);
+        if($cleanPath[0] == "/api/index.php$path") {
             if($UseSecurityMiddleware) Security::validateToken();
             $callback();
         }

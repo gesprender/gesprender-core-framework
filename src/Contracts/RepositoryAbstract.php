@@ -42,9 +42,8 @@ abstract class RepositoryAbstract extends MySQL
 
     protected static function _findOneBy(string $table, array $where): array
     {
-        $data = parent::findBy($table, $where);
-        if ($data) return reset($data);
-        return [];
+        $data = parent::findOneBy($table, $where);
+        return $data;
     }
 
     protected static function _insert(string $table, array $arsInsert): bool

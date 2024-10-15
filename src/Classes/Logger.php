@@ -20,6 +20,19 @@ class Logger
     }
     public static function registerLog(string $errorLog): void
     {
-        error_log($errorLog);
+        // Define la ruta y nombre del archivo de log
+        $logFile = '../Logs/log_class.log';
+
+        // Abre el archivo de log en modo 'append', o crea uno nuevo si no existe
+        $fileHandle = fopen($logFile, 'a');
+
+        if ($fileHandle) {
+            // Escribe el mensaje de error con la fecha y hora actual
+            fwrite($fileHandle, date('Y-m-d H:i:s') . " - " . $errorLog . PHP_EOL);
+            // Cierra el archivo
+            fclose($fileHandle);
+        } else {
+            error_log("No se pudo abrir el archivo de log: $logFile");
+        }
     }
 }
