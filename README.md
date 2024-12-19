@@ -10,8 +10,8 @@ Another great feature I incorporated is "Multi-Tenant Mode," which allows the co
 
 1. Clone Core and Backoffice repositories
 2. Create Data Base
-3. Configure .env file in Core folder or Backoffice folder, anyway
-4. In Core folder, execute `npm run intall`
+3. In Core folder, execute `npm run intall`
+4. Configure .end file
 5. Go to http://localhost
 
 # Commands
@@ -29,8 +29,6 @@ npm run dev
 ```
 
 Note: The Docker container has a React image installed, so the project is self-sustaining. However, on some computers, it may slow down the frontend. This command `run dev` stop the React image and start the server separately, allowing for a smoother development experience.
-
-
 
 Drop and re-install database
 
@@ -56,7 +54,6 @@ Create Backoffice build
 npm run build
 ```
 
-
 # CoreShell CLI
 
 Create custom module for project
@@ -70,7 +67,6 @@ Install database migrations or first migration database.
 ```
 php coreshell migrations:migrate
 ```
-
 
 # Folder structure
 
