@@ -41,7 +41,7 @@ trait TraitResponseVariants
 
     private static function invalidAuthorization(string $message): JsonResponse
     {
-        if (getenv('MODE') != 'Prod') $message = 'Not authorized';
+        if (getenv('MODE') == 'Prod') $message = 'Not authorized';
 
         return new JsonResponse([
             'message'   => $message,

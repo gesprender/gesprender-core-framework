@@ -18,7 +18,7 @@ final readonly class Kernel
         if($_ENV['MODE'] == 'prod') error_reporting(E_ALL & ~E_WARNING);
 
         # Load Session
-        if (!isset($_SESSION)) {
+        if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
 
