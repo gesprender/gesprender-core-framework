@@ -234,7 +234,7 @@ class MySQL extends CoreAbstract
             foreach ($insert as $key => $value) {
                 $data_key .= "$key, ";
 
-                if (empty($value) && strlen($value) == 0) {
+                if (empty($value) && strlen((string)$value) == 0) {
                     $data_value .= "'', ";
                 } elseif (is_bool($value) || is_null($value)) {
                     $data_value .= (bool) $value . ", ";
