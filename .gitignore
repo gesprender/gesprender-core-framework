@@ -9,7 +9,7 @@ db.sql
 docker-compose.yml
 /docker/nginx.conf
 Dockerfile
-Dockerfile.react
+Dockerfile.*
 .dockerignore
 .htaccess
 
@@ -18,7 +18,6 @@ Dockerfile.react
 /vendor
 /dist
 /logs
-/upload
 /src/Modules
 /Project
 /Project_*/

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Verifica si existe el directorio Backoffice
+if [ ! -d "./Backoffice" ]; then
+    echo "Backoffice not found"
+    exit 1
+fi
+
+# Define los archivos a copiar
+declare -a filesToCopy=(
+    "./Backoffice/configuration/Docker/Dockerfile ./Dockerfile"
+    "./Backoffice/configuration/Docker/Dockerfile.astro ./Dockerfile.astro"
+    "./Backoffice/configuration/.env.example ./.env"
+    "./Backoffice/configuration/Docker/docker-compose.yml ./docker-compose.yml"
+    "./Backoffice/configuration/Docker/.dockerignore ./.dockerignore"
+)
+
+declare -a filesToCopyInDockerFolder=(
+    "./Backoffice/configuration/Docker/nginx.conf ./Docker/nginx.conf"
+)
+
+# Función para copiar archivos
+copy_file() {
+    local src="$1"
+    local dst="$2"
+
+    if cp "$src" "$dst"; then
+        echo "[ Ok ] - $dst"
+    else
+        echo "[ Error ] - $src to $dst"
+    fi
+}
+
+# Copiar archivos
+for file in "${filesToCopy[@]}"; do
+    src=$(echo "$file" | awk '{print $1}')
+    dst=$(echo "$file" | awk '{print $2}')
+    copy_file "$src" "$dst"
+done
+
+for file in "${filesToCopyInDockerFolder[@]}"; do
+    src=$(echo "$file" | awk '{print $1}')
+    dst=$(echo "$file" | awk '{print $2}')
+    mkdir -p "$(dirname "$dst")" # Crear directorios si no existen
+    copy_file "$src" "$dst"
+done

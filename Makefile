@@ -1,0 +1,2 @@
+Copi_files:
+	bash ./config/scripts/copy-files && docker compose up -d --build && docker exec -it coreframework_MySQL /bin/bash -c "sleep 5 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS coreframework; CREATE DATABASE IF NOT EXISTS coreframework;'" && docker exec -it coreframework_PHP823fpm /bin/bash -c "sleep 3 && php coreshell migrations:migrate"
