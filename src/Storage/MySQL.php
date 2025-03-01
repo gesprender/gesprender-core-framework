@@ -1,10 +1,8 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Core\Storage;
 
-use Core\Classes\Logger;
 use Core\Contracts\CoreAbstract;
 use Exception;
 use InvalidArgumentException;

@@ -13,6 +13,7 @@ Another great feature I incorporated is "Multi-Tenant Mode," which allows the co
 3. In Core folder, execute `npm run intall`
 4. Configure .end file
 5. Go to http://localhost
+6. Add permissions in `chmod -R 755 /var/www/html/Backoffice/src/Modules ` in php image container
 
 # Commands
 
