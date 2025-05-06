@@ -9,7 +9,8 @@
       "db": "docker exec -it coreframework_MySQL /bin/bash -c \"sleep 3 && mysql -u root -proot -e 'DROP DATABASE IF EXISTS coreframework; CREATE DATABASE IF NOT EXISTS coreframework;'\" && docker exec -it coreframework_PHP823fpm /bin/bash -c \"sleep 3 && php coreshell migrations:migrate\"",
       "apache": "node run-project-apache.js && composer install && php coreshell migrations:migrate && cd Backoffice && npm run install",
       "apache-dev": "cd Backoffice && npm run dev",
-      "build": "cd Backoffice && npm run build"
+      "build": "cd Backoffice && npm run build",
+      "test": "vendor/bin/phpunit"
     }
   }
   
