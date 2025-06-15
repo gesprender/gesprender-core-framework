@@ -1,77 +1,117 @@
 # gesprender-core-framework
 
-Minimalist PHP core for projects.
+A minimalist PHP core framework for rapid project development.
+
+## Overview
 
 The framework was designed for rapid development, without the heavy caching or processes that frameworks like Symfony or Laravel bring by default. We provide an integrated Backend and Frontend (Backoffice) so that the developer only needs to focus on developing the required functionality and integrating it into the client's website.
 
-Another great feature I incorporated is "Multi-Tenant Mode," which allows the code to be deployed once and used by multiple websites (multiple clients). The framework recognizes the domain making the request and loads the database assigned to that domain. See more in the `.env` file configuration.
+A key feature is the "Multi-Tenant Mode," which allows the code to be deployed once and used by multiple websites (multiple clients). The framework automatically recognizes the requesting domain and loads the corresponding database configuration. See more details in the `.env` file configuration.
 
-# Install
+## Architecture and Patterns
+
+The framework is built following a modular and clean architecture, implementing several design patterns:
+
+### Architecture
+
+- **Modular Architecture**: The framework is organized into independent modules that encapsulate specific functionality.
+- **Multi-Tenant**: Native support for multiple clients/domains with separate databases.
+- **Centralized Kernel**: A central core (`Kernel.php`) that handles application bootstrap, configuration loading, and routing.
+
+### Design Patterns
+
+- **Singleton Pattern**: Implemented in the Kernel to ensure a single application instance.
+- **Factory Pattern**: Used in service and response creation.
+- **Repository Pattern**: Implemented in the data access layer.
+- **Service Layer Pattern**: Clear separation of business logic in services.
+- **Middleware Pattern**: Middleware system for HTTP request processing.
+
+### Directory Structure
+
+```
+src/
+├── Classes/      # Base and utility classes
+├── Contracts/    # Interfaces and contracts
+├── Services/     # Application services
+├── Storage/      # Storage and persistence
+└── Cron/         # Scheduled tasks
+```
+
+### Execution Flow
+
+1. Kernel initializes the application
+2. Loads environment configuration (.env)
+3. Initializes session
+4. Loads controllers and endpoints
+5. Handles request routing
+6. Processes response
+
+## Installation
 
 1. Clone Core and Backoffice repositories
-2. Create Data Base
-3. In Core folder, execute `npm run intall`
-4. Configure .end file
+2. Create Database
+3. In Core folder, execute `npm run install`
+4. Configure .env file
 5. Go to http://localhost
-6. Add permissions in `chmod -R 755 /var/www/html/Backoffice/src/Modules ` in php image container
+6. Add permissions in `chmod -R 755 /var/www/html/Backoffice/src/Modules` in PHP image container
 
-# Commands
+## Available Commands
 
 Set up and install the project:
 
-```
+```bash
 npm install
 ```
 
-Activate development mode with host reload
+Activate development mode with host reload:
 
-```
+```bash
 npm run dev
 ```
 
-Note: The Docker container has a React image installed, so the project is self-sustaining. However, on some computers, it may slow down the frontend. This command `run dev` stop the React image and start the server separately, allowing for a smoother development experience.
+Note: The Docker container has a React image installed, making the project self-sustaining. However, on some computers, it may slow down the frontend. The `run dev` command stops the React image and starts the server separately, allowing for a smoother development experience.
 
-Drop and re-install database
+Drop and re-install database:
 
-```
+```bash
 npm run db
 ```
 
-Set up and install the project with Apache server (tested on XAMPP)
+Set up and install the project with Apache server (tested on XAMPP):
 
-```
+```bash
 npm run apache
 ```
 
-Up server react for project (without Docker)
+Start React server for project (without Docker):
 
-```
+```bash
 npm run apache-dev
 ```
 
-Create Backoffice build
+Create Backoffice build:
 
-```
+```bash
 npm run build
 ```
 
-# CoreShell CLI
+## CoreShell CLI
 
-Create custom module for project
+Create custom module for project:
 
-```
+```bash
 php coreshell make:module ModuleName
 ```
 
-Install database migrations or first migration database.
+Install database migrations or first migration database:
 
-```
+```bash
 php coreshell migrations:migrate
 ```
 
-# Folder structure
+## Project Structure
 
-```php
+```
 └── 📁.vscode
     └── launch.json
     └── settings.json
@@ -89,7 +129,6 @@ php coreshell migrations:migrate
     └── php.ini
 └── 📁Logs
     └── errors.log
-└── 📁Sites
 └── 📁src
     └── 📁Classes
     └── 📁Contracts
