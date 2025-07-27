@@ -27,11 +27,14 @@
         "firebase/php-jwt": "^5.5.1",
         "gesprender/cli": "master",
         "mercadopago/dx-php": "^2.2.1",
+        "monolog/monolog": "^3.0",
         "phpoffice/phpspreadsheet": "^1.19",
         "predis/predis": "^3.0@alpha",
+        "psr/log": "^3.0",
         "vlucas/phpdotenv": "^5.5"
     },
     "require-dev": {
+        "filp/whoops": "^2.15",
         "mockery/mockery": "2.0.x-dev",
         "phpunit/phpunit": "^11.0@dev"
     },

@@ -3,6 +3,7 @@
 namespace Config;
 
 use Core\Services\JsonResponse;
+use Core\Services\LoggerServiceProvider;
 use Core\Services\Request;
 use Core\Services\Response;
 use Dotenv\Dotenv;
@@ -17,6 +18,8 @@ final readonly class Kernel
 
         $this->getDotenv();
 
+        # Initialize modern logging and debugging system
+        $this->initializeLoggingSystem();
 
         if ($_ENV['MODE'] == 'prod') error_reporting(E_ALL & ~E_WARNING);
 
@@ -163,5 +166,33 @@ final readonly class Kernel
         }
 
         return $result;
+    }
+
+    /**
+     * Inicializa el sistema moderno de logging y debugging
+     */
+    private function initializeLoggingSystem(): void
+    {
+        try {
+            $loggerProvider = LoggerServiceProvider::getInstance();
+            $loggerProvider->initialize();
+            
+            // Log de inicio del framework
+            $logger = $loggerProvider->getLogger();
+            $logger->info('GesPrender Framework initialized', [
+                'version' => '0.0.1',
+                'environment' => $_ENV['MODE'] ?? 'dev',
+                'multi_tenant' => $_ENV['MULTI_TENANT_MODE'] ?? 'false',
+                'domain' => $_SERVER['HTTP_HOST'] ?? 'unknown',
+                'request_uri' => $_SERVER['REQUEST_URI'] ?? 'N/A',
+                'request_method' => $_SERVER['REQUEST_METHOD'] ?? 'N/A',
+                'php_version' => PHP_VERSION,
+                'memory_usage' => memory_get_usage(true)
+            ]);
+            
+        } catch (\Throwable $e) {
+            // Fallback silencioso si falla la inicialización
+            error_log("Failed to initialize logging system: " . $e->getMessage());
+        }
     }
 }
