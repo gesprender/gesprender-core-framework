@@ -5,8 +5,8 @@ use Backoffice\Modules\User\Domain\User;
 
 class Context {
     public $Entities = [];
-    public User $User;
-    public Business $Business;
+    public ?User $User = null;
+    public ?Business $Business = null;
 
     public static function getContext(): self
     {

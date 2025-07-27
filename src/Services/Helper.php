@@ -3,188 +3,198 @@ declare(strict_types=1);
 
 namespace Core\Services;
 
-class Helper {
+/**
+ * Helper - Facade estático para HelperService
+ * 
+ * Mantiene compatibilidad 100% con código existente mientras
+ * delega internamente al nuevo HelperService con DI.
+ * 
+ * @deprecated Los métodos estáticos serán eliminados en v2.0
+ * @see HelperService Para el nuevo sistema con DI
+ */
+class Helper 
+{
+    private static ?HelperService $service = null;
 
+    /**
+     * Obtiene instancia del HelperService
+     */
+    private static function getService(): HelperService
+    {
+        if (self::$service === null) {
+            try {
+                // Intentar resolver desde ServiceContainer
+                self::$service = ServiceContainer::resolve(HelperService::class);
+            } catch (\Throwable $e) {
+                // Fallback: crear instancia directamente
+                self::$service = new HelperService();
+            }
+        }
+        return self::$service;
+    }
+
+    /**
+     * Valida si hay caracteres inválidos en string
+     * 
+     * @param string $string String a validar
+     * @return bool True si hay caracteres inválidos
+     * @deprecated Use HelperService::characterInvalid() instead
+     */
     public static function character_invalid(string $string): bool
     {
-        $array_characters_invalid = ['/', "'", '"', '\\'];
-        for($i = 0; $i < strlen($string); $i++){
-            if(in_array($string[$i], $array_characters_invalid)){
-                return true;
-            }
-        }
-        return false;
+        return self::getService()->characterInvalid($string);
     }
 
+    /**
+     * Valida input de formularios
+     * 
+     * @param array $input Array de inputs a validar
+     * @return bool True si el input es válido
+     * @deprecated Use HelperService::validateInput() instead
+     */
     public static function validate_input(array $input): bool
     {
-
-        foreach($input as $x){
-            $value = $x;
-            $permitidos = 'aábcdeéfghiíjklmnoópqrstuúvwxyzAÁBCDEÉFGHIÍJKLMNOÓPQRSTUÚVWXYZ0123456789/@-_. $!¿?¡#%&()=|°:;'; 
-            for ($i=0; $i<strlen($value); $i++){ 
-                if (strpos($permitidos, substr($value,$i,1))===false){
-                    return false;
-                }
-            }
-            continue;
-        }
-        return true;
+        return self::getService()->validateInput($input);
     }
 
+    /**
+     * Valida input que solo contenga letras y ciertos caracteres
+     * 
+     * @param array $input Array de inputs a validar
+     * @return bool True si solo contiene letras y caracteres permitidos
+     * @deprecated Use HelperService::validateInputOnlyLettersCharacters() instead
+     */
     public static function validate_input_only_letters_characters(array $input): bool
     {
-        foreach($input as $x){
-            $value = $x;
-            $permitidos = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 '; 
-            for ($i=0; $i<strlen($value); $i++){ 
-                if (strpos($permitidos, substr($value,$i,1))===false){
-                    return false;
-                }
-            }
-        }
-        return true; 
+        return self::getService()->validateInputOnlyLettersCharacters($input);
     }
 
+    /**
+     * Obtiene el tamaño de un directorio
+     * 
+     * @param string $dir Directorio a medir
+     * @return string Tamaño formateado
+     * @deprecated Use HelperService::getDirectorySize() instead
+     */
     public static function Fsize($dir): string
     {
-        clearstatcache();
-        $cont = 0;
-        if (is_dir($dir)) {
-            if ($gd = opendir($dir)) {
-                while (($archivo = readdir($gd)) !== false) {
-                    if ($archivo != "." && $archivo != "..") {
-                        if (is_dir($archivo)) {
-                            $cont += self::Fsize($dir . "/" . $archivo);
-                        } else {
-                            $cont += sprintf("%u", filesize($dir . "/" . $archivo));
-                        }
-                    }
-                }
-                closedir($gd);
-            }
-        }
-        // echo "PESO DE DESCARGAS: 2,68 GB (2.881.723.298 bytes)</br>";
-        return self::formatBytes($cont);
+        return self::getService()->getDirectorySize($dir);
     }
 
+    /**
+     * Formatea bytes en formato legible
+     * 
+     * @param int $size Tamaño en bytes
+     * @param int $precision Precisión decimal
+     * @return string Tamaño formateado
+     * @deprecated Use HelperService::formatBytes() instead
+     */
     public static function formatBytes($size, $precision = 2): string
     {
-        $base = log($size, 1024);
-        $suffixes = array('', 'KB', 'MB', 'GB', 'TB');   
-    
-        return is_nan((float)round(pow(1024, $base - floor($base)), $precision)) ? '0' : round(pow(1024, $base - floor($base)), $precision) .' '. $suffixes[floor($base)];
+        return self::getService()->formatBytes($size, $precision);
     }
 
+    /**
+     * Cuenta archivos en un directorio
+     * 
+     * @param string $directorio Directorio a contar
+     * @return int Número de archivos
+     * @deprecated Use HelperService::countFilesInDirectory() instead
+     */
     public static function countFilesDir($directorio): int
     {
-        $list_files = scandir($directorio);
-        return count($list_files) - 2;
+        return self::getService()->countFilesInDirectory($directorio);
     }
 
+    /**
+     * Hace unset de todos los valores de un array
+     * 
+     * @param array $values Array por referencia
+     * @deprecated Use HelperService::allUnset() instead
+     */
     public static function all_unset(array &$values): void
     {
-        if(count($values) > 0){
-            foreach($values as $key => $value){
-                unset($values[$key]);
-            }
-        }
+        self::getService()->allUnset($values);
     }
 
-    public static function clearSpecialsCharacters( string $character ): string 
+    /**
+     * Limpia caracteres especiales de un string
+     * 
+     * @param string $character String a limpiar
+     * @return string String limpio
+     * @deprecated Use HelperService::clearSpecialCharacters() instead
+     */
+    public static function clearSpecialsCharacters(string $character): string 
     {
-		$character = str_replace("[áàâãªä@]","a",$character);
-		$character = str_replace("[ÁÀÂÃÄ]","A",$character);
-		$character = str_replace("[éèêë]","e",$character);
-		$character = str_replace("[ÉÈÊË]","E",$character);
-		$character = str_replace("[íìîï]","i",$character);
-		$character = str_replace("[ÍÌÎÏ]","I",$character);
-		$character = str_replace("[óòôõºö]","o",$character);
-		$character = str_replace("[ÓÒÔÕÖ]","O",$character);
-		$character = str_replace("[úùûü]","u",$character);
-		$character = str_replace("[ÚÙÛÜ]","U",$character);
-		$character = str_replace("[,;.:]","",$character);
-		$character = str_replace("['\"]","",$character);
-		$character = str_replace("[?¿]","",$character);
-		$character = str_replace("[)(]","",$character);
-		$character = str_replace("[\[\]]","",$character);
-		$character = str_replace("[<>]","",$character);
-		$character = str_replace("[-_]","",$character);
-		$character = str_replace("[!¡]","",$character);
-		$character = str_replace("[{}]","",$character);
-		$character = str_replace("[%#$&/|°¬]","",$character);
-		return $character;
-	}
+        return self::getService()->clearSpecialCharacters($character);
+    }
 
+    /**
+     * Obtiene nombre del mes en español
+     * 
+     * @param mixed $mes Número del mes
+     * @return string|bool Nombre del mes o false
+     * @deprecated Use HelperService::getMonthName() instead
+     */
     public static function getMonthName($mes): string|bool
     {
-        switch ($mes) {
-            case '01':
-                return 'Enero';
-            case '02':
-                return 'Febrero';
-            case '03':
-                return 'Marzo';
-            case '04':
-                return 'Abril';
-            case '05':
-                return 'Mayo';
-            case '06':
-                return 'Junio';
-            case '07':
-                return 'Julio';
-            case '08':
-                return 'Agosto';
-            case '09':
-                return 'Septiembre';
-            case '10':
-                return 'Octubre';
-            case '11':
-                return 'Noviembre';
-            case '12':
-                return 'Disciembre';
-            default:
-                return false;
+        // Convertir string a int para compatibilidad
+        if (is_string($mes)) {
+            $mes = (int) $mes;
         }
+        return self::getService()->getMonthName($mes);
     }
 
+    /**
+     * Obtiene nombre del día en español
+     * 
+     * @param int $num Número del día
+     * @return string|bool Nombre del día o false
+     * @deprecated Use HelperService::getDayName() instead
+     */
     public static function nombreDia($num): string|bool
     {
-        switch ($num) {
-            case 1:
-                return 'Lunes';
-            case 2:
-                return 'Martes';
-            case 3:
-                return 'Miercoles';
-            case 4:
-                return 'Jueves';
-            case 5:
-                return 'Viernes';
-            case 6:
-                return 'Sabado';
-            case 7:
-                return 'Domingo';
-            default:
-                return false;
-        }
+        return self::getService()->getDayName($num);
     }
 
+    /**
+     * Convierte letra a número
+     * 
+     * @param string $let Letra a convertir
+     * @return int Número correspondiente
+     * @deprecated Use HelperService::letterWithNumber() instead
+     */
     public static function letterWithNumber($let): int
     {
-        $letters = "ABCDEFGHIJKLMNOPQRSTUVWHYZ";
-        $lettersMin = "abcdefghijklmnopqrstuvwxyz";
-        $n = 0;
-        for ($i = 0; $i < strlen($let); $i++) {
-            if ($i + 1 < strlen($let)) {
-                $n += 25;
-            }
-            for ($x = 0; $x < strlen($letters); $x++) {
-                if ($let[$i] == $letters[$x] || $let[$i] == $lettersMin[$x]) {
-                    $n += $x + 1;
-                }
-            }
-        }
-        return $n;
+        return self::getService()->letterWithNumber($let);
+    }
+
+    /**
+     * Obtiene estadísticas del facade
+     */
+    public static function getFacadeStats(): array
+    {
+        return [
+            'service_instance' => self::$service !== null,
+            'using_service_container' => ServiceContainer::getInstance()->bound(HelperService::class),
+            'legacy_mode' => self::$service === null,
+            'memory_usage' => memory_get_usage(true)
+        ];
+    }
+
+    /**
+     * Resetea el facade (útil para testing)
+     */
+    public static function resetFacade(): void
+    {
+        self::$service = null;
+    }
+
+    /**
+     * Fuerza el uso de una instancia específica (útil para testing)
+     */
+    public static function setService(HelperService $service): void
+    {
+        self::$service = $service;
     }
 }

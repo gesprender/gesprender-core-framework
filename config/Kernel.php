@@ -86,7 +86,7 @@ final readonly class Kernel
                 if (class_exists($classController)) {
                     new $classController();
                 }
-            }, $value['useMiddleware']);
+            }, UseSecurityMiddleware: $value['useMiddleware']);
         }
     }
 

@@ -3,88 +3,155 @@ declare(strict_types=1);
 
 namespace Core\Services;
 
-use Backoffice\Modules\User\Infrastructure\Services\Security;
 use Core\Contracts\CoreAbstract;
 
+/**
+ * Request - Facade estático para RequestService
+ * 
+ * Mantiene compatibilidad 100% con módulos existentes mientras
+ * delega internamente al nuevo RequestService con DI.
+ * 
+ * @deprecated Los métodos estáticos serán eliminados en v2.0
+ * @see RequestService Para el nuevo sistema con DI
+ */
 class Request extends CoreAbstract
 {
+    private static ?RequestService $service = null;
+
+    // Propiedades legacy para compatibilidad con instanciación directa
     public $url;
     public $method;
     public $headers;
     public $body;
     public $queryParams;
 
+    /**
+     * Constructor legacy - mantiene compatibilidad
+     * @deprecated Use RequestService instead
+     */
     public function __construct() 
     {
-        $this->url = $_SERVER['REQUEST_URI'];
-        $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->headers = $this->getHeaders();
-        $this->body = file_get_contents('php://input');
-        $this->queryParams = $_GET;
+        $service = self::getService();
+        $this->url = $service->getUrl();
+        $this->method = $service->getMethod();
+        $this->headers = $service->getHeaders();
+        $this->body = $service->getBody();
+        $this->queryParams = $service->getQueryParams();
     }
 
-    private function getHeaders(): array
+    /**
+     * Obtiene instancia del RequestService
+     */
+    private static function getService(): RequestService
     {
-        if (function_exists('getallheaders')) {
-            return getallheaders();
-        }
-
-        $headers = [];
-        foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) == 'HTTP_') {
-                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+        if (self::$service === null) {
+            try {
+                // Intentar resolver desde ServiceContainer
+                self::$service = ServiceContainer::resolve(RequestService::class);
+            } catch (\Throwable $e) {
+                // Fallback: crear instancia directamente
+                self::$service = new RequestService();
             }
         }
-        return $headers;
+        return self::$service;
     }
 
+    /**
+     * Registra una ruta con callback
+     * 
+     * @param string $path Ruta a registrar
+     * @param callable $callback Función a ejecutar
+     * @param bool $UseSecurityMiddleware Si usar middleware de seguridad
+     * @deprecated Use RequestService::route() instead
+     */
     public static function Route(string $path, $callback, bool $UseSecurityMiddleware = false): void
     {
-        $cleanPath = explode('?', $_SERVER['REQUEST_URI']);
-        if($cleanPath[0] == "/api/index.php$path") {
-            if($UseSecurityMiddleware) Security::validateToken();
-            $callback();
-        }
+        self::getService()->route($path, $callback, $UseSecurityMiddleware);
     }
 
-    public function get($key, $default = false): string|bool|null|int|array
-    {
-        $value = $default;
-        if (isset($this->queryParams[$key])) {
-            $value = $this->queryParams[$key];
-        } elseif (isset($this->body[$key])) {
-            $value = $this->body[$key];
-        }
-        return $value;
-    }
-
+    /**
+     * Alias para Route()
+     * 
+     * @param string $key Ruta a registrar
+     * @param callable $callback Función a ejecutar  
+     * @param bool $UseSecurityMiddleware Si usar middleware de seguridad
+     * @deprecated Use RequestService::on() instead
+     */
     public static function On(string $key, $callback, bool $UseSecurityMiddleware = false): void
     {
-        
-        $payload = json_decode(file_get_contents("php://input"), true);
-        $pathRequest = str_replace("/api/index.php", "", $_SERVER['REQUEST_URI']);
-        if(array_key_exists($key, $_REQUEST) || $pathRequest == $key || array_key_exists($key, (array)$payload)){
-            if($UseSecurityMiddleware) Security::validateToken();
-            $callback();
-        }
+        self::getService()->on($key, $callback, $UseSecurityMiddleware);
     }
 
+    /**
+     * Obtiene un valor del request
+     * 
+     * CRÍTICO: Este método es usado extensivamente por los módulos
+     * 
+     * @param string $key Clave a buscar
+     * @param mixed $default Valor por defecto
+     * @return string|bool|null|int|array
+     * @deprecated Use RequestService::getValue() instead
+     */
     public static function getValue($key, $default = false): string|bool|null|int|array
     {
-        $payload = json_decode(file_get_contents("php://input"), true);
-
-        if(isset($payload[$key])) return $payload[$key];
-
-        if(isset($_REQUEST[$key])) return $_REQUEST[$key];
-        
-        return $default;
+        return self::getService()->getValue($key, $default);
     }
 
+    /**
+     * Obtiene valor sin middleware de seguridad
+     * 
+     * @param string $key Clave a buscar
+     * @param mixed $default Valor por defecto
+     * @return string|bool|null|int|array
+     * @deprecated Use RequestService::getValueByPass() instead
+     */
     public static function getValueByPass($key, $default = false): string|bool|null|int|array
     {
-        if(!isset($_REQUEST[$key])) return $default;
-
-        return $_REQUEST[$key];
+        return self::getService()->getValueByPass($key, $default);
     }
 
-}
+    /**
+     * Método legacy para compatibilidad (usado en algunos contextos)
+     */
+    public function get($key, $default = false): string|bool|null|int|array
+    {
+        return self::getService()->getValue($key, $default);
+    }
+
+    /**
+     * Métodos legacy adicionales para compatibilidad
+     */
+    private function getHeaders(): array
+    {
+        return self::getService()->getHeaders();
+    }
+
+    /**
+     * Obtiene estadísticas del facade
+     */
+    public static function getFacadeStats(): array
+    {
+        return [
+            'service_instance' => self::$service !== null,
+            'using_service_container' => ServiceContainer::getInstance()->bound(RequestService::class),
+            'legacy_mode' => self::$service === null,
+            'memory_usage' => memory_get_usage(true)
+        ];
+    }
+
+    /**
+     * Resetea el facade (útil para testing)
+     */
+    public static function resetFacade(): void
+    {
+        self::$service = null;
+    }
+
+    /**
+     * Fuerza el uso de una instancia específica (útil para testing)
+     */
+    public static function setService(RequestService $service): void
+    {
+        self::$service = $service;
+    }
+} 

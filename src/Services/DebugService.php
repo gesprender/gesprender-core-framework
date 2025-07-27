@@ -4,24 +4,20 @@ declare(strict_types=1);
 
 namespace Core\Services;
 
-use Whoops\Run;
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Handler\JsonResponseHandler;
-use Whoops\Handler\PlainTextHandler;
-
 /**
  * DebugService - Sistema de debugging avanzado para GesPrender Framework
  * 
- * Integra Whoops para pretty error pages y debugging mejorado
+ * Integra Whoops para pretty error pages y debugging mejorado (cuando esté disponible)
  * Solo activo en modo desarrollo
  */
 class DebugService
 {
     private static ?self $instance = null;
-    private ?Run $whoops = null;
+    private $whoops = null; // Puede ser Run de Whoops o null
     private bool $isEnabled;
     private string $environment;
     private LoggerService $logger;
+    private bool $whoopsAvailable = false;
 
     private function __construct()
     {
@@ -29,7 +25,10 @@ class DebugService
         $this->isEnabled = $this->environment === 'dev';
         $this->logger = LoggerService::getInstance();
         
-        if ($this->isEnabled) {
+        // Verificar si Whoops está disponible
+        $this->whoopsAvailable = class_exists('Whoops\Run');
+        
+        if ($this->isEnabled && $this->whoopsAvailable) {
             $this->setupWhoops();
         }
     }
@@ -43,36 +42,52 @@ class DebugService
     }
 
     /**
-     * Configura Whoops para manejo de errores avanzado
+     * Configura Whoops para manejo de errores avanzado (si está disponible)
      */
     private function setupWhoops(): void
     {
-        $this->whoops = new Run();
-        
-        // Determinar tipo de handler según el contexto
-        if ($this->isApiRequest()) {
-            $this->setupApiHandler();
-        } elseif ($this->isConsoleRequest()) {
-            $this->setupConsoleHandler();
-        } else {
-            $this->setupWebHandler();
+        if (!$this->whoopsAvailable) {
+            return;
         }
-        
-        // Registrar como handler de errores
-        $this->whoops->register();
-        
-        $this->logger->debug('Whoops debugging system initialized', [
-            'environment' => $this->environment,
-            'handler_type' => $this->getHandlerType()
-        ]);
+
+        try {
+            $runClass = 'Whoops\Run';
+            $this->whoops = new $runClass();
+            
+            // Determinar tipo de handler según el contexto
+            if ($this->isApiRequest()) {
+                $this->setupApiHandler();
+            } elseif ($this->isConsoleRequest()) {
+                $this->setupCliHandler();
+            } else {
+                $this->setupWebHandler();
+            }
+            
+            // Registrar Whoops como el handler de errores
+            $this->whoops->register();
+            
+            $this->logger->debug('Whoops debugging system initialized', [
+                'environment' => $this->environment,
+                'whoops_available' => true
+            ]);
+            
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to setup Whoops', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 
     /**
-     * Configura handler para requests web
+     * Configura handler para páginas web (HTML)
      */
     private function setupWebHandler(): void
     {
-        $handler = new PrettyPageHandler();
+        if (!$this->whoopsAvailable) return;
+
+        $handlerClass = 'Whoops\Handler\PrettyPageHandler';
+        $handler = new $handlerClass();
         
         // Personalizar título y información
         $handler->setPageTitle("🚨 GesPrender Framework - Error");
@@ -113,7 +128,10 @@ class DebugService
      */
     private function setupApiHandler(): void
     {
-        $handler = new JsonResponseHandler();
+        if (!$this->whoopsAvailable) return;
+
+        $handlerClass = 'Whoops\Handler\JsonResponseHandler';
+        $handler = new $handlerClass();
         
         // Solo mostrar traces en desarrollo
         $handler->setJsonApi(true);
@@ -125,9 +143,12 @@ class DebugService
     /**
      * Configura handler para CLI/Console
      */
-    private function setupConsoleHandler(): void
+    private function setupCliHandler(): void
     {
-        $handler = new PlainTextHandler();
+        if (!$this->whoopsAvailable) return;
+
+        $handlerClass = 'Whoops\Handler\PlainTextHandler';
+        $handler = new $handlerClass();
         $handler->addTraceToOutput(true);
         
         $this->whoops->pushHandler($handler);
@@ -301,18 +322,44 @@ class DebugService
     }
 
     /**
-     * Obtiene información de debugging
+     * Verifica si Whoops está disponible y configurado
+     */
+    public function isWhoopsAvailable(): bool
+    {
+        return $this->whoopsAvailable && $this->whoops !== null;
+    }
+
+    /**
+     * Obtiene información del estado del debugging
      */
     public function getDebugInfo(): array
     {
         return [
-            'enabled' => $this->isEnabled,
+            'debug_enabled' => $this->isEnabled,
             'environment' => $this->environment,
-            'whoops_registered' => $this->whoops !== null,
-            'handler_type' => $this->getHandlerType(),
-            'memory_usage' => memory_get_usage(true),
-            'peak_memory' => memory_get_peak_usage(true)
+            'whoops_available' => $this->whoopsAvailable,
+            'whoops_configured' => $this->whoops !== null,
+            'php_version' => PHP_VERSION,
+            'framework_version' => $this->getFrameworkVersion()
         ];
+    }
+
+    /**
+     * Captura una excepción manualmente (útil para testing)
+     */
+    public function captureException(\Throwable $exception): void
+    {
+        if ($this->isEnabled && $this->whoops !== null) {
+            $this->whoops->handleException($exception);
+        } else {
+            // Fallback: log la excepción
+            $this->logger->error('Exception captured', [
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => $exception->getTraceAsString()
+            ]);
+        }
     }
 
     /**

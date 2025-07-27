@@ -24,6 +24,7 @@
         "php": "^7.4.0|^8.1",
         "dompdf/dompdf": "^2.0",
         "endroid/qr-code": "^3.9",
+        "filp/whoops": "^2.15",
         "firebase/php-jwt": "^5.5.1",
         "gesprender/cli": "master",
         "mercadopago/dx-php": "^2.2.1",
@@ -34,7 +35,6 @@
         "vlucas/phpdotenv": "^5.5"
     },
     "require-dev": {
-        "filp/whoops": "^2.15",
         "mockery/mockery": "2.0.x-dev",
         "phpunit/phpunit": "^11.0@dev"
     },
