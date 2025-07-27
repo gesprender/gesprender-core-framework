@@ -97,7 +97,7 @@ npm run build
 
 ## CoreShell CLI
 
-Create custom module for project:
+Create custom module for project (includes inter-module communication by default):
 
 ```bash
 php coreshell make:module ModuleName
@@ -108,6 +108,24 @@ Install database migrations or first migration database:
 ```bash
 php coreshell migrations:migrate
 ```
+
+## Documentation
+
+Comprehensive documentation is available in the `/Docs` folder:
+
+- **[Framework Documentation](Docs/framework-documentation.md)** - Complete framework overview, architecture, and best practices
+- **[Module Communication Architecture](Docs/module-communication-architecture.md)** - Inter-module communication system design
+- **[Developer Module Extension Guide](Docs/developer-module-extension-guide.md)** - Step-by-step guide for creating and extending modules
+- **[CLI Integration](Docs/cli-integration.md)** - CoreShell CLI with integrated communication system
+
+### Key Features
+
+- **🔄 Inter-Module Communication**: Event-driven architecture for decoupled module interaction
+- **🎯 Auto-Discovery**: Automatic module detection and loading
+- **🛠️ CLI Integration**: Generate modules with communication capabilities by default
+- **📡 Event System**: Dispatch and listen to events across modules
+- **🔧 Service Registry**: Share services between modules
+- **🎨 Hooks System**: WordPress-like extensibility with actions and filters
 
 ## Project Structure
 
