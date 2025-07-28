@@ -24,6 +24,10 @@ class ServiceContainer
     private array $bindings = [];
     private array $instances = [];
     private array $singletons = [];
+    
+    // PROTECCIÓN CONTRA BUCLES DE DEPENDENCIAS
+    private array $resolving = [];
+    private int $maxResolutionDepth = 10;
 
     private function __construct()
     {
@@ -132,6 +136,16 @@ class ServiceContainer
      */
     public function make(string $abstract): mixed
     {
+        // PROTECCIÓN: Detectar bucles de dependencias
+        if (isset($this->resolving[$abstract])) {
+            throw new InvalidArgumentException("Circular dependency detected for service: $abstract");
+        }
+        
+        // PROTECCIÓN: Limitar profundidad de resolución
+        if (count($this->resolving) >= $this->maxResolutionDepth) {
+            throw new InvalidArgumentException("Maximum resolution depth exceeded. Possible circular dependency.");
+        }
+
         // Si ya hay una instancia, devolverla
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
@@ -142,16 +156,25 @@ class ServiceContainer
             return $this->instances[$abstract];
         }
 
-        // Resolver el binding
-        $concrete = $this->getConcrete($abstract);
-        $instance = $this->build($concrete);
+        // Marcar como resolviéndose
+        $this->resolving[$abstract] = true;
+        
+        try {
+            // Resolver el binding
+            $concrete = $this->getConcrete($abstract);
+            $instance = $this->build($concrete);
 
-        // Si es singleton, guardarlo para futuras resoluciones
-        if (isset($this->singletons[$abstract])) {
-            $this->instances[$abstract] = $instance;
+            // Si es singleton, guardarlo para futuras resoluciones
+            if (isset($this->singletons[$abstract])) {
+                $this->instances[$abstract] = $instance;
+            }
+
+            return $instance;
+            
+        } finally {
+            // CRÍTICO: Siempre limpiar el flag de resolución
+            unset($this->resolving[$abstract]);
         }
-
-        return $instance;
     }
 
     /**
@@ -299,7 +322,9 @@ class ServiceContainer
             'bindings' => count($this->bindings),
             'instances' => count($this->instances),
             'singletons' => count($this->singletons),
+            'currently_resolving' => array_keys($this->resolving),
             'memory_usage' => memory_get_usage(true),
+            'memory_peak' => memory_get_peak_usage(true),
             'services' => array_keys($this->bindings)
         ];
     }
@@ -312,6 +337,7 @@ class ServiceContainer
         $this->bindings = [];
         $this->instances = [];
         $this->singletons = [];
+        $this->resolving = []; // Limpiar estado de resolución
         $this->registerCoreServices();
     }
 

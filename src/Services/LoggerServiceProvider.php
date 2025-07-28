@@ -174,7 +174,7 @@ class LoggerServiceProvider
     }
 
     /**
-     * Registra handler para errores fatales
+     * Registra handler para errores fatales (OPTIMIZADO)
      */
     private function registerShutdownHandler(): void
     {
@@ -182,14 +182,18 @@ class LoggerServiceProvider
             $error = error_get_last();
             
             if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
-                $this->logger->critical('Fatal PHP Error', [
-                    'message' => $error['message'],
-                    'file' => $error['file'],
-                    'line' => $error['line'],
-                    'type' => $error['type'],
-                    'memory_usage' => memory_get_usage(true),
-                    'peak_memory' => memory_get_peak_usage(true)
-                ]);
+                // ULTRA-SIMPLE: Solo log crítico sin contexto pesado
+                try {
+                    $this->logger->critical('Fatal PHP Error', [
+                        'message' => $error['message'],
+                        'file' => basename($error['file']), // Solo nombre del archivo
+                        'line' => $error['line']
+                        // Remover contexto pesado para evitar más memoria
+                    ]);
+                } catch (\Throwable $e) {
+                    // Fallback ultra-simple
+                    error_log("Fatal Error: " . $error['message'] . " in " . basename($error['file']) . ":" . $error['line']);
+                }
             }
         });
     }

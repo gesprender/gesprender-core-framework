@@ -76,43 +76,75 @@ class ModuleManager
     }
     
     /**
-     * Descubre módulos en el directorio Backoffice/src/Modules/
+     * Descubre módulos automáticamente (optimizado para memoria)
      */
-    private function discoverModules(string $modulesPath): array
+    private function discoverModules(string $modulesPath, int $maxDepth = 5): array
     {
         $modules = [];
+        $fileCount = 0;
+        $maxFiles = 5000; // Límite de archivos a procesar
+        $startMemory = memory_get_usage(true);
         
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($modulesPath, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST
-        );
+        if (!is_dir($modulesPath)) {
+            $this->log("Modules path not found: {$modulesPath}");
+            return [];
+        }
         
-        foreach ($iterator as $file) {
-            if ($file->isFile() && $file->getFilename() === 'ModuleCommunication.php' && 
-                strpos($file->getPath(), '/Infrastructure/Communication') !== false) {
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($modulesPath, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+            
+            // PROTECCIÓN: Limitar profundidad
+            $iterator->setMaxDepth($maxDepth);
+            
+            foreach ($iterator as $file) {
+                // PROTECCIÓN: Limitar archivos procesados
+                if (++$fileCount > $maxFiles) {
+                    $this->log("Module discovery truncated due to file limit: {$modulesPath}, files processed: {$fileCount}, modules found: " . count($modules));
+                    break;
+                }
                 
-                // Extraer nombre del módulo desde la ruta
-                $pathParts = explode('/', $file->getPath());
-                $moduleIndex = array_search('Modules', $pathParts);
-                $moduleName = $moduleIndex !== false ? $pathParts[$moduleIndex + 1] : basename(dirname($file->getPath(), 2));
+                // PROTECCIÓN: Monitorear memoria cada 500 archivos
+                if ($fileCount % 500 === 0) {
+                    $currentMemory = memory_get_usage(true);
+                    $memoryIncrease = $currentMemory - $startMemory;
+                    
+                    if ($memoryIncrease > 30 * 1024 * 1024) { // 30MB
+                        $this->log("Module discovery stopped due to high memory usage: {$modulesPath}, files processed: {$fileCount}, memory increase: " . number_format($memoryIncrease / 1024 / 1024, 2) . 'MB');
+                        break;
+                    }
+                }
                 
-                // Construir namespace para Infrastructure/Communication
-                $namespace = 'Backoffice\\Modules\\' . $moduleName . '\\Infrastructure\\Communication\\ModuleCommunication';
+                if ($file->isFile() && $file->getFilename() === 'ModuleCommunication.php' && 
+                    strpos($file->getPath(), '/Infrastructure/Communication') !== false) {
+                    
+                    // Extraer nombre del módulo desde la ruta
+                    $pathParts = explode('/', $file->getPath());
+                    $moduleIndex = array_search('Modules', $pathParts);
+                    $moduleName = $moduleIndex !== false ? $pathParts[$moduleIndex + 1] : basename(dirname($file->getPath(), 2));
+                    
+                    // Construir namespace para Infrastructure/Communication
+                    $namespace = 'Backoffice\\Modules\\' . $moduleName . '\\Infrastructure\\Communication\\ModuleCommunication';
                 
-                // Path del módulo es el directorio padre de Infrastructure
-                $modulePath = dirname(dirname($file->getPath()));
-                
-                $modules[$moduleName] = [
-                    'name' => $moduleName,
-                    'path' => $modulePath,
-                    'namespace' => $namespace,
-                    'file' => $file->getPathname(),
-                    'enabled' => true,
-                    'dependencies' => [] // Se resolverán al cargar
-                ];
-                
-                $this->log("Discovered module: {$moduleName} at {$file->getPath()}");
+                    // Path del módulo es el directorio padre de Infrastructure
+                    $modulePath = dirname(dirname($file->getPath()));
+                    
+                    $modules[$moduleName] = [
+                        'name' => $moduleName,
+                        'path' => $modulePath,
+                        'namespace' => $namespace,
+                        'file' => $file->getPathname(),
+                        'enabled' => true,
+                        'dependencies' => [] // Se resolverán al cargar
+                    ];
+                    
+                    $this->log("Discovered module: {$moduleName} at {$file->getPath()}");
+                }
             }
+        } catch (Exception $e) {
+            $this->logError("Error discovering modules: " . $e->getMessage());
         }
         
         return $modules;

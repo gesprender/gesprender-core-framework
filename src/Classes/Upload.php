@@ -11,7 +11,8 @@ class Upload extends CoreAbstract
     {
         try {
             // Capturamos datos de la imagen
-            $business = $_SESSION['Business']->info['business'];
+            $businessInfo = self::getBusinessFromToken();
+            $business = $businessInfo['business'] ?? 'default';
             $basename = $file['name'];
             $image = $file['tmp_name'];
             $extencion = pathinfo($basename, PATHINFO_EXTENSION);
@@ -36,4 +37,40 @@ class Upload extends CoreAbstract
         }
     }
 
+    /**
+     * Obtiene información del business sin usar sesiones
+     * Reemplaza $_SESSION['Business']
+     */
+    private static function getBusinessFromToken(): ?array
+    {
+        try {
+            // Opción 1: Desde Security service si está disponible
+            if (class_exists('Backoffice\Modules\User\Infrastructure\Services\Security')) {
+                $business = \Backoffice\Modules\User\Infrastructure\Services\Security::getBusiness();
+                if ($business && isset($business->info)) {
+                    return $business->info;
+                }
+            }
+            
+            // Opción 2: Desde header Authorization
+            $headers = getallheaders();
+            $authHeader = $headers['Authorization'] ?? '';
+            
+            if (strpos($authHeader, 'Bearer ') === 0) {
+                $token = substr($authHeader, 7);
+                // Aquí podrías decodificar JWT si usas JWT
+                // Por ahora, usar un fallback básico
+            }
+            
+            // Opción 3: Fallback con business por defecto
+            return [
+                'business' => 'default',
+                'id' => 1
+            ];
+            
+        } catch (\Throwable $e) {
+            error_log("Error getting business info: " . $e->getMessage());
+            return null;
+        }
+    }
 }

@@ -138,4 +138,107 @@ class SQLite extends CoreAbstract
         }
     }
 
+    /**
+     * Ejecuta una consulta SELECT (optimizado para memoria)
+     */
+    public function executeSelect(string $query, array $params = [], int $limit = 1000, int $offset = 0): array
+    {
+        $connection = $this->db;
+        
+        // Agregar LIMIT automáticamente si no está presente para proteger memoria
+        if (stripos($query, 'LIMIT') === false) {
+            $query .= " LIMIT {$limit} OFFSET {$offset}";
+        }
+        
+        $startMemory = memory_get_usage(true);
+        $rowCount = 0;
+        $maxMemoryIncrease = 100 * 1024 * 1024; // 100MB máximo
+        
+        if (!empty($params)) {
+            $stmt = $connection->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $response = $stmt->execute();
+        } else {
+            $response = $connection->query($query);
+        }
+
+        $results = [];
+        while ($response && ($row = $response->fetchArray(SQLITE3_ASSOC))) {
+            $results[] = $row;
+            $rowCount++;
+            
+            // PROTECCIÓN: Monitorear memoria cada 100 filas
+            if ($rowCount % 100 === 0) {
+                $currentMemory = memory_get_usage(true);
+                $memoryIncrease = $currentMemory - $startMemory;
+                
+                if ($memoryIncrease > $maxMemoryIncrease) {
+                    error_log("SQLite query truncated due to high memory usage. Rows: {$rowCount}, Memory: " . 
+                              number_format($memoryIncrease / 1024 / 1024, 2) . "MB");
+                    break;
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Ejecuta una consulta con resultados iterables (Generator para memoria eficiente)
+     */
+    public function executeSelectIterator(string $query, array $params = []): \Generator
+    {
+        $connection = $this->db;
+        
+        if (!empty($params)) {
+            $stmt = $connection->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $response = $stmt->execute();
+        } else {
+            $response = $connection->query($query);
+        }
+
+        $rowCount = 0;
+        while ($response && ($row = $response->fetchArray(SQLITE3_ASSOC))) {
+            yield $row;
+            $rowCount++;
+            
+            // Permitir liberación de memoria periódicamente
+            if ($rowCount % 1000 === 0) {
+                gc_collect_cycles();
+            }
+        }
+    }
+
+    /**
+     * Obtiene el total de filas con COUNT (sin cargar datos)
+     */
+    public function getRowCount(string $table, string $where = ''): int
+    {
+        $connection = $this->db;
+        $query = "SELECT COUNT(*) as count FROM {$table}";
+        
+        if (!empty($where)) {
+            $query .= " WHERE {$where}";
+        }
+        
+        $result = $connection->querySingle($query);
+        return (int) $result;
+    }
+
+    public function selectAll(string $query, int $limit = 1000, int $offset = 0): array
+    {
+        // Usar el método optimizado
+        return $this->executeSelect($query, [], $limit, $offset);
+    }
+
+    public function selectWithParams(string $query, array $params, int $limit = 1000, int $offset = 0): array
+    {
+        // Usar el método optimizado  
+        return $this->executeSelect($query, $params, $limit, $offset);
+    }
 }

@@ -91,9 +91,9 @@ class HelperService
     }
 
     /**
-     * Obtiene el tamaño de un directorio
+     * Obtiene el tamaño de un directorio de forma segura (optimizado para memoria)
      */
-    public function getDirectorySize(string $dir): string
+    public function getDirectorySize(string $dir, int $maxFiles = 10000): string
     {
         if (!is_dir($dir)) {
             $this->logger->warning('Directory not found', ['dir' => $dir]);
@@ -101,25 +101,66 @@ class HelperService
         }
 
         $size = 0;
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)
-        );
+        $fileCount = 0;
+        $startMemory = memory_get_usage(true);
+        
+        try {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
 
-        foreach ($iterator as $file) {
-            if ($file->isFile()) {
-                $size += $file->getSize();
+            foreach ($iterator as $file) {
+                // PROTECCIÓN: Limitar número de archivos procesados
+                if (++$fileCount > $maxFiles) {
+                    $this->logger->warning('Directory scan truncated due to file limit', [
+                        'dir' => $dir,
+                        'files_processed' => $fileCount,
+                        'max_files' => $maxFiles
+                    ]);
+                    break;
+                }
+                
+                // PROTECCIÓN: Monitorear uso de memoria
+                if ($fileCount % 1000 === 0) {
+                    $currentMemory = memory_get_usage(true);
+                    $memoryIncrease = $currentMemory - $startMemory;
+                    
+                    // Si el uso de memoria aumentó más de 50MB, detener
+                    if ($memoryIncrease > 50 * 1024 * 1024) {
+                        $this->logger->warning('Directory scan stopped due to high memory usage', [
+                            'dir' => $dir,
+                            'files_processed' => $fileCount,
+                            'memory_increase' => $this->formatBytes($memoryIncrease)
+                        ]);
+                        break;
+                    }
+                }
+
+                if ($file->isFile()) {
+                    $size += $file->getSize();
+                }
             }
+            
+        } catch (\Exception $e) {
+            $this->logger->error('Error calculating directory size', [
+                'dir' => $dir,
+                'error' => $e->getMessage(),
+                'files_processed' => $fileCount
+            ]);
+            return 'Error';
         }
 
+        $endMemory = memory_get_usage(true);
         $formatted = $this->formatBytes($size);
         
         $this->logger->debug('Directory size calculated', [
             'dir' => $dir,
-            'size_bytes' => $size,
-            'size_formatted' => $formatted
+            'size' => $formatted,
+            'files_processed' => $fileCount,
+            'memory_used' => $this->formatBytes($endMemory - $startMemory)
         ]);
 
-        return $formatted;
+        return $fileCount >= $maxFiles ? $formatted . ' (truncated)' : $formatted;
     }
 
     /**

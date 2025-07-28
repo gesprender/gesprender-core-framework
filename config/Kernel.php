@@ -17,20 +17,17 @@ final readonly class Kernel
         Response::setHeaders();
 
         $this->getDotenv();
-
         # Initialize modern logging and debugging system
         $this->initializeLoggingSystem();
-
+        
         if ($_ENV['MODE'] == 'prod') error_reporting(E_ALL & ~E_WARNING);
-
-        # Load Session
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+        
+        if ($_ENV['MODE'] === 'dev') {
+            error_log("Kernel loaded without sessions - using stateless authentication");
         }
-
         # Defines
         require  'defines.php';
-
+        
         $this->leadFiles();
         $this->endpointNotFound();
         $this->Welcome();
@@ -50,16 +47,15 @@ final readonly class Kernel
 
     private function leadFiles()
     {
-
         # Load backoffice custom defines
         $loadCustomDefines = '../Backoffice/src/custom_defines.php';
         if (file_exists($loadCustomDefines)) {
             require $loadCustomDefines;
         }
-
+        $backofficeRoutes = $this->scanBackofficeRoutes('..');
         # Load backoffice Endpoints
         $this->autoload_controllers('../Backoffice/src/Modules');
-        $this->autoload_endpoints($this->scanBackofficeRoutes('..'));
+        $this->autoload_endpoints($backofficeRoutes);
     }
 
     private function autoload_controllers($directory): void
@@ -80,13 +76,40 @@ final readonly class Kernel
 
     private function autoload_endpoints($directory): void
     {
+        // Removido var_dump de debug
+        if (empty($directory)) {
+            error_log("No routes found to load");
+            return;
+        }
+        
         foreach ($directory as $value) {
-            Request::Route($value['routes'], function () use ($value) {
-                $classController = $value['namespace']."\\".$value['class_name'];
-                if (class_exists($classController)) {
-                    new $classController();
-                }
-            }, UseSecurityMiddleware: $value['useMiddleware']);
+            try {
+                Request::Route($value['routes'], function () use ($value) {
+                    // ARREGLADO: Instanciar clase antes de llamar método
+                    $className = $value['class'];
+                    $methodName = $value['method'] ?? 'run';
+                    
+                    if (!class_exists($className)) {
+                        error_log("Class not found: $className");
+                        return null;
+                    }
+                    
+                    // Instanciar la clase (no es estática)
+                    $instance = new $className();
+                    
+                    if (!method_exists($instance, $methodName)) {
+                        error_log("Method $methodName not found in class $className");
+                        return null;
+                    }
+                    
+                    // Llamar método en la instancia
+                    return call_user_func([$instance, $methodName]);
+                    
+                }, $value['useMiddleware'] ?? false);
+                
+            } catch (\Throwable $e) {
+                error_log("Error loading route {$value['routes']}: " . $e->getMessage());
+            }
         }
     }
 
@@ -110,62 +133,142 @@ final readonly class Kernel
         ], 200);
     }
 
-    private function scanBackofficeRoutes($basePath)
+    /**
+     * Escanea rutas de Backoffice OPTIMIZADO PARA MEMORIA
+     * Reemplaza RecursiveDirectoryIterator problemático
+     */
+    private function scanBackofficeRoutes($basePath): array
     {
+        $startMemory = memory_get_usage(true);
         $modulesPath = "$basePath/Backoffice/src/Modules";
         $result = [];
-
+        $filesProcessed = 0;
+        $maxFiles = 1000; // Límite de archivos
+        
         if (!is_dir($modulesPath)) {
-            return "El directorio de módulos no existe.";
+            error_log("Modules directory not found: $modulesPath");
+            return [];
         }
 
-        foreach (scandir($modulesPath) as $module) {
-            if ($module === '.' || $module === '..') {
-                continue;
-            }
-
-            $applicationPath = "$modulesPath/$module/Application";
-            if (!is_dir($applicationPath)) {
-                continue;
-            }
-
-            $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($applicationPath));
-            foreach ($files as $file) {
-                if ($file->isFile() && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                    $content = file_get_contents($file->getRealPath());
-                    $pattern = "/# \[Route\('([^']+)',\s*name: *'([^']+)',\s*methods: *'([^']+)'\)]/";
-
-                    // Extraer el namespace
-                    $namespace = null;
-                    if (preg_match('/namespace\s+([^;]+);/', $content, $namespaceMatches)) {
-                        $namespace = trim($namespaceMatches[1]);
+        try {
+            // OPTIMIZADO: Escaneo manual por niveles en lugar de recursivo masivo
+            $modules = scandir($modulesPath);
+            
+            foreach ($modules as $module) {
+                if ($module === '.' || $module === '..') continue;
+                
+                $modulePath = "$modulesPath/$module";
+                if (!is_dir($modulePath)) continue;
+                
+                // Buscar específicamente en Application directory
+                $appPath = "$modulePath/Application";
+                if (!is_dir($appPath)) continue;
+                
+                $appFiles = scandir($appPath);
+                
+                foreach ($appFiles as $file) {
+                    if (++$filesProcessed > $maxFiles) {
+                        error_log("Route scanning truncated: too many files ($maxFiles+)");
+                        break 2;
                     }
-
-                    // Extraer el nombre de la clase
-                    $className = null;
-                    if (preg_match('/class\s+(\w+)/', $content, $classMatches)) {
-                        $className = trim($classMatches[1]);
+                    
+                    if (!str_ends_with($file, '.php')) continue;
+                    
+                    $filePath = "$appPath/$file";
+                    
+                    // PROTECCIÓN: Monitorear memoria cada 50 archivos
+                    if ($filesProcessed % 50 === 0) {
+                        $currentMemory = memory_get_usage(true);
+                        $memoryIncrease = $currentMemory - $startMemory;
+                        
+                        if ($memoryIncrease > 50 * 1024 * 1024) { // 50MB
+                            error_log("Route scanning stopped: high memory usage (" . round($memoryIncrease/1024/1024, 2) . "MB)");
+                            break 2;
+                        }
                     }
-
-                    if (preg_match($pattern, $content, $matches)) {
-                        $useMiddleware = strpos($content, '# useMiddleware') !== false;
-
-                        $result[] = [
-                            'routes' => $matches[1],
-                            'name' => $matches[2],
-                            'method' => $matches[3],
-                            'file_name' => $file->getFilename(),
-                            'file_path' => $file->getRealPath(),
-                            'useMiddleware' => $useMiddleware,
-                            'namespace' => $namespace,
-                            'class_name' => $className
-                        ];
+                    
+                    // Procesar archivo para extraer rutas
+                    $routes = $this->extractRoutesFromFile($filePath, $module);
+                    if (!empty($routes)) {
+                        $result = array_merge($result, $routes);
+                    }
+                    
+                    // Yield control cada 10 archivos
+                    if ($filesProcessed % 10 === 0) {
+                        usleep(100); // 0.1ms pause
                     }
                 }
             }
+            
+            $endMemory = memory_get_usage(true);
+            $memoryUsed = $endMemory - $startMemory;
+            
+            error_log("Route scanning completed: $filesProcessed files, " . count($result) . " routes, " . round($memoryUsed/1024, 2) . "KB memory");
+            
+        } catch (\Throwable $e) {
+            error_log("Error scanning routes: " . $e->getMessage());
+            return [];
         }
-
+        
         return $result;
+    }
+
+    /**
+     * Extrae rutas de un archivo PHP de forma eficiente
+     */
+    private function extractRoutesFromFile(string $filePath, string $module): array
+    {
+        try {
+            $content = file_get_contents($filePath);
+            if ($content === false) return [];
+            
+            $routes = [];
+            
+            // Buscar comentarios de ruta con regex eficiente
+            if (preg_match('/# \[Route\(\'([^\']+)\'[^\]]*\)\]/', $content, $matches)) {
+                $routePath = $matches[1];
+                $className = $this->extractClassName($content, $module);
+                
+                if ($className) {
+                    $routes[] = [
+                        'routes' => $routePath,
+                        'class' => $className,
+                        'method' => $this->extractMethodName($content),
+                        'useMiddleware' => strpos($content, '# useMiddleware') !== false
+                    ];
+                }
+            }
+            
+            return $routes;
+            
+        } catch (\Throwable $e) {
+            error_log("Error extracting routes from $filePath: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Extrae nombre de clase de forma eficiente
+     */
+    private function extractClassName(string $content, string $module): ?string
+    {
+        if (preg_match('/class\s+(\w+)/', $content, $matches)) {
+            $className = $matches[1];
+            return "Backoffice\\Modules\\$module\\Application\\$className";
+        }
+        return null;
+    }
+
+    /**
+     * Extrae nombre de método (por defecto 'run')
+     */
+    private function extractMethodName(string $content): string
+    {
+        // Por defecto usar 'run' o buscar el método público
+        if (preg_match('/public function (\w+)\(\).*Route/', $content, $matches)) {
+            return $matches[1];
+        }
+        return 'run';
     }
 
     /**

@@ -111,7 +111,7 @@ class DebugService
             'Multi-tenant Mode' => $_ENV['MULTI_TENANT_MODE'] ?? 'false',
             'Current Domain' => $_SERVER['HTTP_HOST'] ?? 'N/A',
             'Document Root' => $_SERVER['DOCUMENT_ROOT'] ?? 'N/A',
-            'Session ID' => session_id() ?: 'No session'
+            'Session ID' => 'Stateless - No sessions used'
         ]);
         
         // Mostrar variables de entorno (filtradas)
