@@ -92,9 +92,16 @@ class LoggerService
     }
 
     // Specialized methods for framework compatibility
-    public function moduleError(string $module, $message, array $context = []): void
+    /**
+     * Legacy method compatibility - for module errors with context
+     * 
+     * @param string $module Module name
+     * @param string $message Error message  
+     * @param array $context Additional context
+     */
+    public function moduleError(string $module, string $message, array $context = []): void
     {
-        $this->error("Module $module: $message", $context);
+        $this->error("[$module] $message", $context);
     }
 
     public function performance(string $operation, float $duration, array $context = []): void
@@ -121,6 +128,40 @@ class LoggerService
         
         // Also log to main log
         $this->warning("Security event: $event", $context);
+    }
+
+    /**
+     * Gets debug information about the logger
+     */
+    public function getDebugInfo(): array
+    {
+        return [
+            'channels' => ['default'], // Simple implementation - single channel
+            'log_path' => $this->logPath,
+            'log_files' => $this->getLogFiles(),
+            'memory_usage' => memory_get_usage(true),
+            'service_type' => 'emergency_logger',
+            'php_version' => PHP_VERSION
+        ];
+    }
+
+    /**
+     * Gets available log files
+     */
+    private function getLogFiles(): array
+    {
+        $files = [];
+        if (is_dir($this->logPath)) {
+            $logFiles = glob($this->logPath . '*.log');
+            foreach ($logFiles as $file) {
+                $files[] = [
+                    'name' => basename($file),
+                    'size' => filesize($file),
+                    'modified' => filemtime($file)
+                ];
+            }
+        }
+        return $files;
     }
 
     // Dummy channel method for compatibility

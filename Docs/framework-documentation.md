@@ -322,34 +322,72 @@ class UserController {
 
 ## Capa de Datos
 
-### Adaptador MySQL
+### 🚀 Sistema Moderno de Base de Datos (RECOMENDADO)
+
+El framework incluye un nuevo sistema de base de datos con **Dependency Injection** y **Repository Pattern**:
 
 ```php
-class MySQL extends CoreAbstract
+use Core\Services\DatabaseService;
+use Core\Contracts\RepositoryAbstract;
+
+// Repository Pattern
+class UserRepository extends RepositoryAbstract 
 {
-    private static function Connection(): ?mysqli
+    public function getActiveUsers(): array 
     {
-        // Soporte multi-tenant
-        if ((bool) $_ENV['MULTI_TENANT_MODE']) {
-            if (isset($_SERVER['HTTP_HOST'])) {
-                $domain = $_SERVER['HTTP_HOST'];
-                $db_name = $_ENV[$domain];
-                $db_password = $_ENV["{$db_name}_password"];
-            }
-        }
-        
-        return new mysqli($db_host, $db_user, $db_password, $db_name);
+        return $this->findBy('users', ['active' => 1]);
+    }
+    
+    public function createUser(array $data): bool
+    {
+        return $this->insert('users', $data);
     }
 }
+
+// Uso en controladores
+$userRepo = new UserRepository();
+$users = $userRepo->getActiveUsers();
+```
+
+### Métodos Disponibles del DatabaseService
+
+```php
+// Query con prepared statements automáticos
+$users = $database->query("SELECT * FROM users WHERE active = ?", true, 'fetch_all', [1]);
+
+// Métodos de conveniencia
+$user = $database->findById('users', 123);
+$admins = $database->findBy('users', ['role' => 'admin']);
+$results = $database->search('products', ['name', 'description'], 'smartphone');
+
+// CRUD operations
+$database->insert('users', ['name' => 'Juan', 'email' => 'juan@email.com']);
+$database->update('users', ['last_login' => now()], ['id' => 123]);
+$database->deleteById('users', 123);
+```
+
+### ⚠️ Sistema Legacy (MySQL Class)
+
+**Mantenido para compatibilidad, pero deprecado:**
+
+```php
+use Core\Storage\MySQL;
+
+// Método anterior (evitar en código nuevo)
+$users = MySQL::query("SELECT * FROM users WHERE active = 1", true);
 ```
 
 ### Características de la Capa de Datos
 
-- **Conexiones lazy**: Solo se conecta cuando es necesario
+- **Dependency Injection**: Servicios inyectables y testeable
+- **Repository Pattern**: Abstracción de acceso a datos
+- **Prepared Statements**: Prevención automática de SQL injection
 - **Multi-tenant automático**: Cambia BD según dominio
-- **Prepared statements**: Prevención de SQL injection
 - **Exception handling**: Manejo robusto de errores
 - **Multiple adapters**: MySQL, SQLite, Redis
+- **Logging integrado**: Todas las consultas se loggean automáticamente
+
+> 📖 **Para guía completa:** Ver `Docs/database-guide.md`
 
 ---
 
@@ -363,6 +401,38 @@ class MySQL extends CoreAbstract
 - **SweetAlert2**: Notificaciones
 - **Axios**: Cliente HTTP
 - **SunEditor**: Editor WYSIWYG
+
+### Características del Frontend
+
+- **Hot reload**: Desarrollo en tiempo real
+- **Componentes modulares**: Cada módulo tiene su interfaz
+- **Estado global**: Zustand para sincronización
+- **Hooks system**: Extensibilidad similar a WordPress
+- **Responsive**: Mobile-first design
+- **PWA ready**: Service workers configurados
+- **Error Boundary**: Manejo robusto de errores
+- **Null Safety**: Validaciones automáticas en CoreHooks
+
+### 🔧 Problema Común Resuelto: Error de toLowerCase
+
+**Error anterior:** `Cannot read properties of null (reading 'toLowerCase')`
+
+**Causa:** En `CoreHooks.jsx`, algunos módulos tenían propiedades `null`
+
+**Solución aplicada:**
+```javascript
+// ❌ Antes (causaba error si module_name era null)
+const isActive = ModulesActive?.allModulesActiveInPlatform.find(
+  t => t.module_name.toLowerCase() == folder.toLowerCase()
+);
+
+// ✅ Después (validación de null)
+const isActive = ModulesActive?.allModulesActiveInPlatform.find(
+  t => t.module_name && t.module_name.toLowerCase() == folder.toLowerCase()
+);
+```
+
+Esta corrección previene errores cuando los datos de módulos vienen incompletos del backend.
 
 ### Estructura del Backoffice
 

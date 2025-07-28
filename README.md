@@ -113,10 +113,19 @@ php coreshell migrations:migrate
 
 Comprehensive documentation is available in the `/Docs` folder:
 
+### 📚 Core Documentation
 - **[Framework Documentation](Docs/framework-documentation.md)** - Complete framework overview, architecture, and best practices
-- **[Module Communication Architecture](Docs/module-communication-architecture.md)** - Inter-module communication system design
+- **[Database Guide](Docs/database-guide.md)** - 🆕 **Connection and queries with the new system**
+
+### 🔧 Development & Modules  
 - **[Developer Module Extension Guide](Docs/developer-module-extension-guide.md)** - Step-by-step guide for creating and extending modules
+- **[Module Communication Architecture](Docs/module-communication-architecture.md)** - Inter-module communication system design
 - **[CLI Integration](Docs/cli-integration.md)** - CoreShell CLI with integrated communication system
+
+### 🆕 Recent Updates
+- ✅ **Fixed "Cannot read properties of null (reading 'toLowerCase')"** error in CoreHooks
+- ✅ **New database system** with Dependency Injection and Repository Pattern  
+- ✅ **Updated documentation** with practical examples and best practices
 
 ### Key Features
 

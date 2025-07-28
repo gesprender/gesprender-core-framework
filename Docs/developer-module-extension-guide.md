@@ -48,22 +48,75 @@ use Core\Contracts\RepositoryAbstract;
 
 class MiModuloRepository extends RepositoryAbstract {
     
+    protected string $table = 'mi_modulo_data';
+    
+    /**
+     * Obtiene todos los registros activos
+     */
     public function findAll(): array
     {
-        // Implementar lógica de consulta
-        return [];
+        return $this->findBy($this->table, ['active' => 1]);
     }
     
+    /**
+     * Guarda un nuevo registro con validación
+     */
     public function save(array $data): bool
     {
-        // Implementar lógica de guardado
-        return true;
+        // Validar datos requeridos
+        if (!isset($data['name']) || empty($data['name'])) {
+            return false;
+        }
+        
+        // Añadir timestamp
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['active'] = 1;
+        
+        return $this->insert($this->table, $data);
     }
     
+    /**
+     * Busca un registro por ID
+     */
     public function findById(int $id): ?array
     {
-        // Implementar lógica de búsqueda
-        return null;
+        $result = parent::findById($this->table, $id);
+        return !empty($result) ? $result : null;
+    }
+    
+    /**
+     * Actualiza un registro
+     */
+    public function update(int $id, array $data): bool
+    {
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        return parent::update($this->table, $data, ['id' => $id]);
+    }
+    
+    /**
+     * Busca por múltiples criterios con SQL seguro
+     */
+    public function searchWithFilters(array $filters): array
+    {
+        $whereConditions = ['active' => 1];
+        
+        if (!empty($filters['name'])) {
+            return $this->search($this->table, ['name', 'description'], $filters['name']);
+        }
+        
+        if (isset($filters['category_id'])) {
+            $whereConditions['category_id'] = $filters['category_id'];
+        }
+        
+        return $this->findBy($this->table, $whereConditions);
+    }
+    
+    /**
+     * Elimina de forma segura (soft delete)
+     */
+    public function softDelete(int $id): bool
+    {
+        return $this->update($this->table, ['active' => 0, 'deleted_at' => date('Y-m-d H:i:s')], ['id' => $id]);
     }
 }
 ```
@@ -927,6 +980,156 @@ public function generateMonthlyReport(): array
     return $report;
 }
 ```
+
+---
+
+## 💾 **Mejores Prácticas: Base de Datos**
+
+### Uso del Nuevo Sistema de BD
+
+**✅ Recomendado:** Usar el sistema moderno con Repository Pattern
+
+```php
+class ClientesRepository extends RepositoryAbstract 
+{
+    protected string $table = 'clients';
+    
+    public function getActiveClients(): array
+    {
+        return $this->findBy($this->table, ['active' => 1]);
+    }
+    
+    public function createClient(array $clientData): bool
+    {
+        // Validación
+        if (!$this->validateClientData($clientData)) {
+            return false;
+        }
+        
+        return $this->insert($this->table, $clientData);
+    }
+}
+```
+
+**❌ Evitar:** Uso directo del sistema legacy
+
+```php
+// NO usar en código nuevo
+$clients = MySQL::query("SELECT * FROM clients", true);
+```
+
+### Seguridad y Prepared Statements
+
+**✅ Automático con el nuevo sistema:**
+
+```php
+// Prepared statement automático
+$user = $this->database->query(
+    "SELECT * FROM users WHERE email = ? AND active = ?",
+    true,
+    'fetch_assoc',
+    [$email, 1]
+);
+
+// Métodos seguros del Repository
+$users = $this->findBy('users', ['role' => $role, 'active' => 1]);
+```
+
+### Manejo de Errores
+
+```php
+public function createRecord(array $data): array
+{
+    try {
+        if ($this->insert($this->table, $data)) {
+            return ['success' => true, 'message' => 'Registro creado'];
+        }
+        
+        return ['success' => false, 'message' => 'Error al crear'];
+        
+    } catch (\Exception $e) {
+        // Log del error
+        error_log("Error en módulo: " . $e->getMessage());
+        
+        return ['success' => false, 'message' => 'Error interno'];
+    }
+}
+```
+
+### Validación de Datos
+
+```php
+private function validateData(array $data): bool
+{
+    $required = ['name', 'email'];
+    
+    foreach ($required as $field) {
+        if (!isset($data[$field]) || empty($data[$field])) {
+            return false;
+        }
+    }
+    
+    // Validaciones específicas
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        return false;
+    }
+    
+    return true;
+}
+```
+
+---
+
+## 🔧 **Solución de Problemas Comunes**
+
+### Error: "Cannot read properties of null"
+
+**Problema:** Variables `null` en JavaScript antes de usar métodos
+
+```javascript
+// ❌ Error si modules es null o contiene elementos null
+modules.some(item => item.toLowerCase() === folder.toLowerCase())
+
+// ✅ Solución: Validar antes de usar
+modules.some(item => item && item.toLowerCase() === folder.toLowerCase())
+```
+
+### Error de Conexión a BD
+
+1. Verificar variables `.env`
+2. Verificar permisos del usuario de BD
+3. Verificar que MySQL esté corriendo
+
+```php
+// Debug de conexión
+try {
+    $db = ServiceContainer::resolve(DatabaseConnectionInterface::class);
+    $result = $db->query("SELECT 1", true);
+    echo "Conexión OK";
+} catch (\Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+### Módulo no aparece en el frontend
+
+1. Verificar que el módulo esté activo en BD
+2. Verificar permisos del usuario
+3. Verificar que `routes.jsx` existe
+4. Verificar que `Sidebar.jsx` está configurado
+
+---
+
+## 📚 **Documentación Relacionada**
+
+- 📖 **database-guide.md** - Guía completa de base de datos
+- 📖 **framework-documentation.md** - Documentación general del framework
+- 📖 **logging-system.md** - Sistema de logs
+- 📖 **module-communication-architecture.md** - Comunicación entre módulos
+
+---
+
+**¡Happy coding! 🚀**
 
 ---
 

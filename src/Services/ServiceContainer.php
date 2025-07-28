@@ -62,6 +62,19 @@ class ServiceContainer
             return new ConfigService();
         });
 
+        // Database service (NUEVO)
+        $this->singleton('Core\Contracts\DatabaseConnectionInterface', function($container) {
+            return new DatabaseService(
+                $container->get('config'),
+                $container->get(LoggerService::class)
+            );
+        });
+
+        // Alias para fácil acceso
+        $this->singleton('database', function($container) {
+            return $container->get('Core\Contracts\DatabaseConnectionInterface');
+        });
+
         // Request service (refactorizado)
         $this->singleton(RequestService::class, function($container) {
             return new RequestService(
