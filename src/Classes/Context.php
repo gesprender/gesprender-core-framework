@@ -34,4 +34,9 @@ class Context {
         return self::$instance;
     }
 
+    public static function getInstance(): self
+    {
+        return self::getContext();
+    }
+
 }

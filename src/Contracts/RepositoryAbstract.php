@@ -106,7 +106,7 @@ abstract class RepositoryAbstract
     /**
      * Ejecuta una query SQL raw
      */
-    protected function query(string $sql, bool $fetch = false, string $fetchType = 'fetch_all', array $params = []): mixed
+    protected function query(string $sql, bool $fetch = true, string $fetchType = 'fetch_all', array $params = []): mixed
     {
         return $this->database->query($sql, $fetch, $fetchType, $params);
     }
