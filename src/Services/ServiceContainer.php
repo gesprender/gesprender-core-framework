@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionParameter;
+use ReflectionNamedType;
 
 /**
  * ServiceContainer - Sistema de Dependency Injection para GesPrender Framework
@@ -266,6 +267,10 @@ class ServiceContainer
             }
 
             throw new InvalidArgumentException("Unable to resolve parameter {$parameter->getName()}");
+        }
+
+        if (!($type instanceof ReflectionNamedType)) {
+            throw new InvalidArgumentException("Complex types (union/intersection) not supported for parameter {$parameter->getName()}");
         }
 
         // Si es un tipo built-in (string, int, etc.), usar valor por defecto

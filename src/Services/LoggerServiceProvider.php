@@ -264,7 +264,7 @@ class LoggerServiceProvider
     {
         $duration = microtime(true) - $startTime;
         
-        $this->logger->access($method, $path, $statusCode, $duration);
+        $this->logger->access($method, $path, $statusCode, (array)$duration);
         
         // Log de performance si la request tardó mucho
         if ($duration > 2.0) { // Más de 2 segundos
