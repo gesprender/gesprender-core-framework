@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Core\Services;
 
 use Core\Contracts\DatabaseConnectionInterface;
-use Core\Classes\LoggerCompatibilityWrapper;
 use Exception;
 use InvalidArgumentException;
 use mysqli;
+use Core\Classes\Context;
 
 /**
  * DatabaseService - Servicio de base de datos con dependency injection
@@ -86,7 +86,12 @@ class DatabaseService implements DatabaseConnectionInterface
     {
         try {
             $connection = $this->connect();
-
+            $context = Context::getContext();
+            $context->debug[] = ['db' => [
+                'sql' => $sql,
+                'params' => $params,
+                'trace' => $this->getDebug()
+            ]];
             // Si hay parámetros o placeholders, usar prepared statements
             if (!empty($params) || strpos($sql, '?') !== false) {
                 return $this->executePreparedStatement($sql, $params, $fetch, $fetchType);
@@ -120,6 +125,14 @@ class DatabaseService implements DatabaseConnectionInterface
         }
     }
 
+    public function getDebug(): array
+    {
+        try {
+            throw new Exception('db trace');
+        } catch (\Throwable $th) {
+            return $th->getTrace();
+        }
+    }
     /**
      * Ejecuta prepared statements de forma segura
      */

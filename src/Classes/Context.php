@@ -10,7 +10,7 @@ class Context {
     public ?User $User = null;
     public ?Business $Business = null;
     public ?DatabaseService $DatabaseService = null;
-    
+    public array $debug = [];
     private static ?self $instance = null;
 
     public function __construct()

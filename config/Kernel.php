@@ -6,6 +6,7 @@ use Core\Services\JsonResponse;
 use Core\Services\LoggerServiceProvider;
 use Core\Services\Request;
 use Core\Services\Response;
+use Core\Classes\Context;
 use Dotenv\Dotenv;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -81,14 +82,13 @@ final readonly class Kernel
             error_log("No routes found to load");
             return;
         }
-        
         foreach ($directory as $value) {
             try {
+                Context::getContext()->box[] = $value['routes'];
                 Request::Route($value['routes'], function () use ($value) {
                     // ARREGLADO: Instanciar clase antes de llamar método
                     $className = $value['class'];
                     $methodName = $value['method'] ?? 'run';
-                    
                     if (!class_exists($className)) {
                         error_log("Class not found: $className");
                         return null;

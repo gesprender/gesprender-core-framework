@@ -76,22 +76,9 @@ class Request extends CoreAbstract
      */
     public static function getValue($key, $default = false): string|bool|null|int|array
     {
-        // PROTECCIÓN INMEDIATA
-        $memoryUsage = memory_get_usage(true);
-        $memoryLimit = ini_get('memory_limit');
-        
-        if ($memoryLimit !== '-1') {
-            $limitBytes = self::parseMemoryLimit($memoryLimit);
-            if ($memoryUsage > ($limitBytes * 0.8)) {
-                ini_set('memory_limit', '1G');
-                gc_collect_cycles();
-            }
-        }
-        
         try {
             return self::getService()->getValue($key, $default);
         } catch (\Throwable $e) {
-            // EMERGENCIA: Método directo ultra-simple
             if (isset($_REQUEST[$key])) return $_REQUEST[$key];
             if (isset($_POST[$key])) return $_POST[$key];
             if (isset($_GET[$key])) return $_GET[$key];
