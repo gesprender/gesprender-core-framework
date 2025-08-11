@@ -31,9 +31,18 @@ trait TraitResponseVariants
 
     private static function invalidArgument(string $message): JsonResponse
     {
-        if (getenv('MODE') != 'Prod') $message = 'Missing argument';
+        if (getenv('MODE') != 'Prod' && false) $message = 'Missing argument';
+
+        # get trace from exception
+        $trace = [];
+        try {
+            throw new \Exception('getTrace');
+        } catch (\Throwable $th) {
+            $trace = $th->getTrace();
+        }
         return new JsonResponse([
             'message'   => $message,
+            'trace' => $trace,
             'status' => false,
             'data' => []
         ], 400);

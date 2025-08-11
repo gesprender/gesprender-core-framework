@@ -29,3 +29,9 @@ define('PATH_UPLOAD', HOST.'/upload/');
 
 #   Definimos zona horaria ARGENTINA
 date_default_timezone_set('America/Argentina/Buenos_Aires');
+
+
+
+# Database Alias
+define('USE_FETCH_ALL', true);
+define('NOT_USE_FETCH_ALL', false);

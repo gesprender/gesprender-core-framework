@@ -38,10 +38,12 @@ class Validations
     {
         $payloadJson = json_decode(file_get_contents("php://input"), true);
         $dataRequest = $_REQUEST;
-        $data = array_merge($payloadJson, $dataRequest);
+        $data = array_merge($payloadJson ?? [], $dataRequest ?? []);
         foreach ($dataForm as $key) 
         {
-            if(!isset($data[$key])) return throw new InvalidArgumentException("Key '$key' not found");
+            if(!isset($data[$key])) {
+                return new InvalidArgumentException("Key '$key' not found");
+            }
         }
 
         return null;

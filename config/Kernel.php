@@ -84,26 +84,38 @@ final readonly class Kernel
         }
         foreach ($directory as $value) {
             try {
-                Context::getContext()->box[] = $value['routes'];
+                // Verificar si el método HTTP es permitido
+                $allowedMethods = $value['httpMethods'] ?? 'GET';
+                $currentMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+                if (!empty($allowedMethods) && $allowedMethods !== $currentMethod) {
+                    continue;
+                }
+
                 Request::Route($value['routes'], function () use ($value) {
-                    // ARREGLADO: Instanciar clase antes de llamar método
                     $className = $value['class'];
                     $methodName = $value['method'] ?? 'run';
+                    
                     if (!class_exists($className)) {
                         error_log("Class not found: $className");
                         return null;
                     }
                     
-                    // Instanciar la clase (no es estática)
-                    $instance = new $className();
-                    
-                    if (!method_exists($instance, $methodName)) {
-                        error_log("Method $methodName not found in class $className");
+                    try {
+                        // Usar ServiceContainer para auto-inyección de dependencias
+                        $instance = \Core\Services\ServiceContainer::resolve($className);
+                        
+                        if (!method_exists($instance, $methodName)) {
+                            error_log("Method $methodName not found in class $className");
+                            return null;
+                        }
+                        
+                        // Llamar método en la instancia
+                        return call_user_func([$instance, $methodName]);
+                        
+                    } catch (\Throwable $e) {
+                        error_log("Error resolving dependencies for $className: " . $e->getMessage());
                         return null;
                     }
-                    
-                    // Llamar método en la instancia
-                    return call_user_func([$instance, $methodName]);
                     
                 }, $value['useMiddleware'] ?? false);
                 
@@ -200,16 +212,10 @@ final readonly class Kernel
                 }
             }
             
-            $endMemory = memory_get_usage(true);
-            $memoryUsed = $endMemory - $startMemory;
-            
-            error_log("Route scanning completed: $filesProcessed files, " . count($result) . " routes, " . round($memoryUsed/1024, 2) . "KB memory");
-            
         } catch (\Throwable $e) {
             error_log("Error scanning routes: " . $e->getMessage());
             return [];
         }
-        
         return $result;
     }
 
@@ -224,9 +230,16 @@ final readonly class Kernel
             
             $routes = [];
             
-            // Buscar comentarios de ruta con regex eficiente
+            // Buscar comentarios de ruta (con o sin métodos HTTP)
             if (preg_match('/# \[Route\(\'([^\']+)\'[^\]]*\)\]/', $content, $matches)) {
                 $routePath = $matches[1];
+                
+                // Extraer métodos HTTP si están definidos
+                $httpMethods = 'GET'; // Default
+                if (preg_match('/methods:\s*\'([^\']+)\'/', $content, $methodMatches)) {
+                    $httpMethods = $methodMatches[1];
+                }
+                
                 $className = $this->extractClassName($content, $module);
                 
                 if ($className) {
@@ -234,7 +247,8 @@ final readonly class Kernel
                         'routes' => $routePath,
                         'class' => $className,
                         'method' => $this->extractMethodName($content),
-                        'useMiddleware' => strpos($content, '# useMiddleware') !== false
+                        'useMiddleware' => strpos($content, '# useMiddleware') !== false,
+                        'httpMethods' => $httpMethods
                     ];
                 }
             }
