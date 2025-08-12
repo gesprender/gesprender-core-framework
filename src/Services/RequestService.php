@@ -30,6 +30,9 @@ class RequestService
     private array $valueCache = [];
     private array $routeCache = [];
     
+    // PARÁMETROS EXTRAÍDOS DE RUTAS DINÁMICAS
+    private array $routeParams = [];
+    
     // DEPENDENCIAS CON FALLBACK SEGURO
     private ConfigService $config;
     private LoggerService $logger;
@@ -119,15 +122,19 @@ class RequestService
     }
 
     /**
-     * Registra una ruta con callback (con caché)
+     * Registra una ruta con callback (con caché y soporte para parámetros dinámicos)
      */
     public function route(string $path, $callback, bool $useSecurityMiddleware = false): void
     {
         $requestPath = parse_url($this->url, PHP_URL_PATH);
         $cleanPath = str_replace('/api/index.php', '', $requestPath);
         
-        if ($cleanPath === $path) {
-            $this->criticalLog('info', 'Route matched', ['path' => $path]);
+        // Verificar si la ruta coincide (incluyendo parámetros dinámicos)
+        $routeParams = $this->matchRoute($cleanPath, $path);
+        
+        if ($routeParams !== false) {
+            // Guardar parámetros extraídos para getValue()
+            $this->routeParams = $routeParams;
             
             if ($useSecurityMiddleware) {
                 if (!$this->validateSecurity()) {
@@ -145,6 +152,40 @@ class RequestService
             }
             exit;
         }
+    }
+
+    /**
+     * Verifica si la ruta solicitada coincide con el patrón de ruta (incluyendo parámetros dinámicos)
+     * 
+     * @param string $requestPath La ruta solicitada (ej: /whatsapp/bots/123)
+     * @param string $routePattern El patrón de ruta (ej: /whatsapp/bots/{id})
+     * @return array|false Array con parámetros extraídos o false si no coincide
+     */
+    private function matchRoute(string $requestPath, string $routePattern): array|false
+    {
+        // Escapar caracteres especiales en el patrón, excepto {param}
+        $pattern = preg_quote($routePattern, '#');
+        
+        // Reemplazar {param} con regex para capturar parámetros
+        $pattern = preg_replace('/\\\{(\w+)\\\}/', '(?P<$1>[^/]+)', $pattern);
+        
+        // Agregar delimitadores y anclas
+        $pattern = '#^' . $pattern . '$#';
+        
+        // Intentar hacer match
+        if (preg_match($pattern, $requestPath, $matches)) {
+            // Extraer solo los parámetros nombrados
+            $params = [];
+            foreach ($matches as $key => $value) {
+                if (is_string($key)) {
+                    $params[$key] = $value;
+                }
+            }
+            
+            return $params;
+        }
+        
+        return false;
     }
 
     /**
@@ -192,15 +233,20 @@ class RequestService
         $value = $default;
         
         // Buscar en orden de prioridad sin overhead
-        $payload = $this->getPayload();
-        if (isset($payload[$key])) {
-            $value = $payload[$key];
-        } elseif (isset($_REQUEST[$key])) {
-            $value = $_REQUEST[$key];
-        } elseif (isset($_POST[$key])) {
-            $value = $_POST[$key];
-        } elseif (isset($_GET[$key])) {
-            $value = $_GET[$key];
+        // 1. Parámetros de ruta (mayor prioridad)
+        if (isset($this->routeParams[$key])) {
+            $value = $this->routeParams[$key];
+        } else {
+            $payload = $this->getPayload();
+            if (isset($payload[$key])) {
+                $value = $payload[$key];
+            } elseif (isset($_REQUEST[$key])) {
+                $value = $_REQUEST[$key];
+            } elseif (isset($_POST[$key])) {
+                $value = $_POST[$key];
+            } elseif (isset($_GET[$key])) {
+                $value = $_GET[$key];
+            }
         }
 
         // Guardar en caché para futuras consultas
